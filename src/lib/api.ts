@@ -16,24 +16,11 @@ import type {
   Region,
 } from "@/pages/types"
 
-const LOCAL_BACKEND_URL = "http://localhost:8000"
-const PRODUCTION_PROXY_BASE_URL = "/api"
-
-function isLocalFrontendHost() {
-  if (typeof window === "undefined") {
-    return import.meta.env.DEV
-  }
-
-  return ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname)
-}
-
 function resolveApiBaseUrl() {
-  if (import.meta.env.DEV || isLocalFrontendHost()) {
-    return LOCAL_BACKEND_URL
-  }
-
   const raw = (import.meta.env.VITE_API_BASE_URL ?? "").trim()
-  if (!raw) return PRODUCTION_PROXY_BASE_URL
+  if (!raw) {
+    throw new Error("Missing required env var: VITE_API_BASE_URL")
+  }
   return raw
 }
 
