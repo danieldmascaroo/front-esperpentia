@@ -5,6 +5,7 @@ import { z } from "zod"
 
 import { useAuth } from "@/auth/useAuth"
 import { BannerDiv } from "@/components/BannerDiv"
+import { FriendlyErrorAlert } from "@/components/FriendlyErrorAlert"
 import { Button } from "@/components/ui/button"
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
@@ -64,7 +65,7 @@ export function LoginPage() {
   }
 
   return (
-    <BannerDiv title="LOGIN" subtitle="Ingresa con tu email y password." className="max-w-md">
+    <BannerDiv title="INICIO DE SESIÓN" subtitle="Ingresa con tu email y password." className="max-w-md">
       <form className="space-y-5" onSubmit={submitHandler}>
         <FieldGroup>
           <Field>
@@ -94,7 +95,7 @@ export function LoginPage() {
           </Field>
         </FieldGroup>
 
-        {error ? <p className="text-sm text-destructive">{error}</p> : null}
+        {error ? <FriendlyErrorAlert message={error} /> : null}
         {error ? (
           <p className="text-sm">
             <Link to="/password/reset" className="text-muted-foreground underline underline-offset-2 hover:text-foreground">

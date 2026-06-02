@@ -12,6 +12,8 @@ type BannerDivProps = {
 }
 
 export function BannerDiv({ title, subtitle, children, className }: BannerDivProps) {
+  void subtitle
+
   return (
     <motion.section
       className={cn(
@@ -23,12 +25,9 @@ export function BannerDiv({ title, subtitle, children, className }: BannerDivPro
       animate="show"
     >
       <div className="bg-black px-6 py-5 text-white sm:px-8">
-        <p className="text-xl font-semibold tracking-[0.32em] uppercase text-white/75">
+        <p className="text-left text-sm font-semibold tracking-[0.18em] uppercase text-white sm:text-base">
           {title}
         </p>
-        <h1 className="mt-3 text-l font-semibold tracking-tight sm:text-l">
-          {subtitle}
-        </h1>
       </div>
       <div className="px-6 py-6 sm:px-8 sm:py-8">
         {children}

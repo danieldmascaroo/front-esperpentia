@@ -10,6 +10,25 @@ import { getCatalogBookById, resolveMediaUrl } from "@/lib/api"
 import { formatCurrency } from "@/lib/cart"
 import type { CatalogBook } from "@/pages/types"
 
+const LANGUAGE_LABELS: Record<string, string> = {
+  es: "Español",
+  en: "Inglés",
+  fr: "Francés",
+  de: "Alemán",
+  it: "Italiano",
+  pt: "Portugués",
+  ca: "Catalán",
+  eu: "Euskera",
+  gl: "Gallego",
+}
+
+function formatLanguageLabel(language: string | null | undefined) {
+  if (!language) return "N/D"
+  const normalized = language.trim().toLowerCase()
+  if (!normalized) return "N/D"
+  return LANGUAGE_LABELS[normalized] ?? language
+}
+
 function DetailSkeleton() {
   return (
     <div className="grid gap-8 lg:grid-cols-[22rem_minmax(0,1fr)]">
@@ -106,6 +125,7 @@ export function BookDetailPage() {
   const imageSrc = resolveMediaUrl(currentBook.imagen)
   const description = currentBook.descripcion || currentBook.obra.descripcion || "Sin descripcion disponible."
   const shortDescription = currentBook.obra.descripcion_corta?.trim() ?? ""
+  const languageLabel = formatLanguageLabel(currentBook.idioma)
   const normalizedDescription = description.trim().toLowerCase()
   const normalizedShortDescription = shortDescription.toLowerCase()
   const shouldShowShortDescription = Boolean(
@@ -124,8 +144,8 @@ export function BookDetailPage() {
         Volver al catálogo
       </Link>
 
-      <div className="grid gap-8 lg:grid-cols-[22rem_minmax(0,1fr)] lg:items-start">
-        <div className="mx-auto w-44 overflow-hidden rounded-[2rem] border border-border/70 bg-card shadow-sm sm:mx-0 sm:w-full">
+      <div className="grid gap-8 lg:grid-cols-[20rem_minmax(0,1fr)] lg:gap-10 lg:items-start">
+        <div className="hidden w-44 overflow-hidden rounded-[2rem] border border-border/70 bg-card shadow-sm sm:mx-0 sm:w-full lg:block">
           {imageSrc ? (
             <img src={imageSrc} alt={currentBook.nombre} className="aspect-[4/5] h-full w-full object-cover" />
           ) : (
@@ -135,30 +155,39 @@ export function BookDetailPage() {
           )}
         </div>
 
-        <div className="space-y-6">
-          <div className="space-y-3 text-center">
+        <div className="space-y-6 lg:space-y-7">
+          <div className="flex items-start gap-3 lg:hidden">
+            <div className="w-28 shrink-0 overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
+              {imageSrc ? (
+                <img src={imageSrc} alt={currentBook.nombre} className="aspect-[4/5] h-full w-full object-cover" />
+              ) : (
+                <div className="flex aspect-[4/5] items-center justify-center bg-muted text-muted-foreground">
+                  <BookOpenText className="h-10 w-10" aria-hidden="true" />
+                </div>
+              )}
+            </div>
+            <div className="min-w-0 space-y-1">
+              <p className="text-[11px] font-semibold tracking-[0.16em] uppercase text-muted-foreground">
+                {currentBook.editorial.nombre}
+              </p>
+              <h1 className="text-xl font-semibold leading-tight">{currentBook.nombre}</h1>
+              <p className="text-sm text-muted-foreground">{currentBook.autor.nombre}</p>
+              <p className="pt-1 text-lg font-semibold">{formatCurrency(currentBook.precio, currentBook.moneda)}</p>
+              <p className="text-xs text-muted-foreground">Unidades disponibles: {currentBook.stock}</p>
+            </div>
+          </div>
+
+          <div className="hidden space-y-3 text-left lg:block">
             <p className="text-sm font-semibold tracking-[0.24em] uppercase text-muted-foreground">
               {currentBook.editorial.nombre}
             </p>
             <h1 className="text-2xl font-semibold leading-tight sm:text-3xl">{currentBook.nombre}</h1>
             <p className="text-lg text-muted-foreground sm:text-base">{currentBook.autor.nombre}</p>
+            <p className="pt-1 text-2xl font-semibold">{formatCurrency(currentBook.precio, currentBook.moneda)}</p>
+            <p className="text-sm text-muted-foreground">Unidades disponibles: {currentBook.stock}</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
-            <div className="rounded-[1.5rem] bg-card px-4 py-4 shadow-sm ring-1 ring-border/70">
-              <p className="text-[10px] font-semibold tracking-[0.16em] uppercase text-muted-foreground">
-                Precio
-              </p>
-              <p className="mt-2 text-lg font-semibold sm:text-xl">
-                {formatCurrency(currentBook.precio, currentBook.moneda)}
-              </p>
-            </div>
-            <div className="rounded-[1.5rem] bg-card px-4 py-4 shadow-sm ring-1 ring-border/70">
-              <p className="text-[10px] font-semibold tracking-[0.16em] uppercase text-muted-foreground">
-                Tapa
-              </p>
-              <p className="mt-2 text-base font-semibold">{currentBook.tipo_tapa || "N/D"}</p>
-            </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div className="rounded-[1.5rem] bg-card px-4 py-4 shadow-sm ring-1 ring-border/70">
               <p className="text-[10px] font-semibold tracking-[0.16em] uppercase text-muted-foreground">
                 Paginas
@@ -167,13 +196,25 @@ export function BookDetailPage() {
             </div>
             <div className="rounded-[1.5rem] bg-card px-4 py-4 shadow-sm ring-1 ring-border/70">
               <p className="text-[10px] font-semibold tracking-[0.16em] uppercase text-muted-foreground">
-                Ano
+                Año
               </p>
               <p className="mt-2 text-base font-semibold">{currentBook.anio_publicacion ?? "N/D"}</p>
             </div>
+            <div className="rounded-[1.5rem] bg-card px-4 py-4 shadow-sm ring-1 ring-border/70">
+              <p className="text-[10px] font-semibold tracking-[0.16em] uppercase text-muted-foreground">
+                Genero
+              </p>
+              <p className="mt-2 text-base font-semibold">{currentBook.genero.nombre}</p>
+            </div>
+            <div className="rounded-[1.5rem] bg-card px-4 py-4 shadow-sm ring-1 ring-border/70">
+              <p className="text-[10px] font-semibold tracking-[0.16em] uppercase text-muted-foreground">
+                Idioma
+              </p>
+              <p className="mt-2 text-base font-semibold">{languageLabel}</p>
+            </div>
           </div>
 
-          <div className="flex flex-col items-center gap-2">
+          <div className="flex flex-col items-center gap-2 lg:flex-row lg:items-center lg:justify-start">
             <Button
               variant="black"
               size="lg"
@@ -217,25 +258,6 @@ export function BookDetailPage() {
             >
               Comprar ahora
             </Button>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 text-sm text-muted-foreground">
-            <div className="rounded-[1.5rem] bg-muted/55 px-4 py-4">
-              <p className="text-[10px] font-semibold tracking-[0.16em] uppercase">genero</p>
-              <p className="mt-2 text-sm font-semibold text-foreground">{currentBook.genero.nombre}</p>
-            </div>
-            <div className="rounded-[1.5rem] bg-muted/55 px-4 py-4">
-              <p className="text-[10px] font-semibold tracking-[0.16em] uppercase">ISBN</p>
-              <p className="mt-2 text-sm font-semibold text-foreground">{currentBook.isbn || "N/D"}</p>
-            </div>
-            <div className="rounded-[1.5rem] bg-muted/55 px-4 py-4">
-              <p className="text-[10px] font-semibold tracking-[0.16em] uppercase">Idioma</p>
-              <p className="mt-2 text-sm font-semibold text-foreground">{currentBook.idioma || "N/D"}</p>
-            </div>
-            <div className="rounded-[1.5rem] bg-muted/55 px-4 py-4">
-              <p className="text-[10px] font-semibold tracking-[0.16em] uppercase">Stock</p>
-              <p className="mt-2 text-sm font-semibold text-foreground">{currentBook.stock}</p>
-            </div>
           </div>
 
           <div className="space-y-3">

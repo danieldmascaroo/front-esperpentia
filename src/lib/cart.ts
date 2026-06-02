@@ -65,7 +65,7 @@ export function getChilexpressPackageForBooks(bookCount: number) {
 
   // Caja sobredimensionada para 3 libros cortos. Para más libros, se considera
   // una caja adicional equivalente por cada bloque de 3.
-  const totalWeightKg = boxCount * (BOOKS_PER_SHIPPING_BOX * SHORT_BOOK_WEIGHT_KG + BOX_BASE_WEIGHT_KG)
+  const totalWeightKg = safeBookCount * SHORT_BOOK_WEIGHT_KG + boxCount * BOX_BASE_WEIGHT_KG
   const roundedUpWeightKg = Math.ceil(totalWeightKg * 100) / 100
   const packageHeight = SHIPPING_BOX_DIMENSIONS_CM.height * boxCount
 

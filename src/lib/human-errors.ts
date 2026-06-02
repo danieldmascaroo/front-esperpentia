@@ -2,13 +2,13 @@ import axios from "axios"
 
 const fieldLabels: Record<string, string> = {
   email: "el email",
-  password: "la contraseÃ±a",
-  re_password: "la confirmaciÃ³n de contraseÃ±a",
-  new_password: "la nueva contraseÃ±a",
-  re_new_password: "la confirmaciÃ³n de la nueva contraseÃ±a",
-  current_password: "la contraseÃ±a actual",
-  token: "el enlace de recuperaciÃ³n",
-  uid: "el enlace de recuperaciÃ³n",
+  password: "la contraseña",
+  re_password: "la confirmación de contraseña",
+  new_password: "la nueva contraseña",
+  re_new_password: "la confirmación de la nueva contraseña",
+  current_password: "la contraseña actual",
+  token: "el enlace de recuperación",
+  uid: "el enlace de recuperación",
   detail: "la solicitud",
 }
 
@@ -22,16 +22,16 @@ function mapKnownMessage(message: string) {
   const normalized = message.trim().toLowerCase()
 
   if (normalized.includes("no active account found")) {
-    return "El email o la contraseÃ±a no coinciden."
+    return "El email o la contraseña no coinciden."
   }
   if (normalized.includes("credentials were not provided")) {
-    return "Debes iniciar sesiÃ³n para continuar."
+    return "Debes iniciar sesión para continuar."
   }
   if (normalized.includes("token is invalid") || normalized.includes("given token not valid")) {
-    return "El enlace no es vÃ¡lido o ya venciÃ³. Solicita uno nuevo."
+    return "El enlace no es válido o ya venció. Solicita uno nuevo."
   }
   if (normalized.includes("authentication credentials were not provided")) {
-    return "Tu sesiÃ³n expirÃ³. Inicia sesiÃ³n nuevamente."
+    return "Tu sesión expiró. Inicia sesión nuevamente."
   }
   if (normalized.includes("field may not be blank")) {
     return "Completa este campo para continuar."
@@ -39,33 +39,57 @@ function mapKnownMessage(message: string) {
   if (normalized.includes("this field is required")) {
     return "Este campo es obligatorio."
   }
+  if (normalized.includes("missing required env var")) {
+    return "Estamos ajustando la configuración de la app. Intenta nuevamente en un momento."
+  }
 
   return toCleanSentence(message)
 }
 
+function sanitizeTechnicalDetails(message: string) {
+  return message
+    .replace(/\s*\(ref:[^)]+\)/gi, "")
+    .replace(/\s*•\s*.*/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim()
+}
+
+export function toFriendlyErrorMessage(
+  error: unknown,
+  fallback = "No pudimos completar la acción. Intenta nuevamente."
+) {
+  if (typeof error === "string") {
+    return sanitizeTechnicalDetails(mapKnownMessage(error)) || fallback
+  }
+
+  if (error instanceof Error) {
+    return sanitizeTechnicalDetails(mapKnownMessage(error.message)) || fallback
+  }
+
+  return fallback
+}
+
 function fromApiDiagnosticPayload(data: Record<string, unknown>) {
   const detail = typeof data.detail === "string" ? data.detail.trim() : ""
-  const errorId = typeof data.error_id === "string" ? data.error_id.trim() : ""
   const hint = typeof data.hint === "string" ? data.hint.trim() : ""
-  const debugMessage = typeof data.debug_message === "string" ? data.debug_message.trim() : ""
 
-  if (!detail && !errorId && !hint && !debugMessage) {
+  if (!detail && !hint) {
     return null
   }
 
   if (hint === "database_unreachable_or_misconfigured") {
-    return `No se pudo conectar a la base de datos${errorId ? ` (ref: ${errorId})` : ""}.`
+    return "No pudimos completar tu solicitud ahora. Intenta nuevamente en unos minutos."
   }
 
   if (hint === "database_schema_or_migration_issue") {
-    return `La base de datos no estÃ¡ sincronizada con el backend${errorId ? ` (ref: ${errorId})` : ""}.`
+    return "Estamos haciendo ajustes en el servicio. Vuelve a intentarlo en un momento."
   }
 
   if (detail) {
-    return `${mapKnownMessage(detail)}${errorId ? ` (ref: ${errorId})` : ""}${debugMessage ? ` â€¢ ${debugMessage}` : ""}`
+    return sanitizeTechnicalDetails(mapKnownMessage(detail))
   }
 
-  return `Error interno del servidor${errorId ? ` (ref: ${errorId})` : ""}.`
+  return "Tuvimos un inconveniente interno. Intenta nuevamente."
 }
 
 function fromObjectData(data: Record<string, unknown>) {
@@ -110,15 +134,15 @@ export function buildHumanApiErrorMessage(error: unknown, fallback: string) {
   const { status, data } = error.response
 
   if (status === 429) {
-    return "Hiciste demasiados intentos en poco tiempo. Espera un momento e intÃ©ntalo de nuevo."
+    return "Hiciste demasiados intentos en poco tiempo. Espera un momento e inténtalo de nuevo."
   }
 
   if (typeof data === "string" && data.trim()) {
     const normalized = data.trim().toLowerCase()
     if (normalized.includes("<html") && normalized.includes("server error")) {
-      return "El backend devolviÃ³ un error interno (500). Revisa la referencia en logs del servidor."
+      return "Tuvimos un problema momentáneo. Intenta nuevamente en unos minutos."
     }
-    return mapKnownMessage(data)
+    return sanitizeTechnicalDetails(mapKnownMessage(data))
   }
 
   if (data && typeof data === "object") {
@@ -129,7 +153,7 @@ export function buildHumanApiErrorMessage(error: unknown, fallback: string) {
 
     const parsed = fromObjectData(data as Record<string, unknown>)
     if (parsed) {
-      return parsed
+      return sanitizeTechnicalDetails(parsed)
     }
   }
 

@@ -6,10 +6,12 @@ import { z } from "zod"
 
 import { requestPasswordReset } from "@/api/authApi"
 import { BannerDiv } from "@/components/BannerDiv"
+import { FriendlyErrorAlert } from "@/components/FriendlyErrorAlert"
 import { Button } from "@/components/ui/button"
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
+import { toFriendlyErrorMessage } from "@/lib/human-errors"
 
 const forgotPasswordSchema = z.object({
   email: z.email("Ingresa un email válido."),
@@ -40,7 +42,7 @@ export function ForgotPasswordPage() {
       await requestPasswordReset(values.email)
       setSuccessMessage("Si el correo existe, te enviaremos instrucciones para recuperar tu contraseña.")
     } catch (error) {
-      setServerError(error instanceof Error ? error.message : "No pudimos procesar la solicitud.")
+      setServerError(toFriendlyErrorMessage(error, "No pudimos procesar la solicitud."))
     }
   })
 
@@ -66,7 +68,7 @@ export function ForgotPasswordPage() {
           </Field>
         </FieldGroup>
 
-        {serverError ? <p className="text-sm text-destructive">{serverError}</p> : null}
+        {serverError ? <FriendlyErrorAlert message={serverError} /> : null}
         {successMessage ? <p className="text-sm text-emerald-600">{successMessage}</p> : null}
 
         <Button type="submit" variant="black" className="w-full" disabled={isSubmitting}>

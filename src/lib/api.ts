@@ -18,10 +18,9 @@ import type {
 
 function resolveApiBaseUrl() {
   const raw = (import.meta.env.VITE_API_BASE_URL ?? "").trim()
-  if (!raw) {
-    throw new Error("Missing required env var: VITE_API_BASE_URL")
-  }
-  return raw
+  const fallback = "/api"
+  const baseUrl = raw || fallback
+  return baseUrl.replace(/\/+$/, "")
 }
 
 const API_BASE_URL = resolveApiBaseUrl()

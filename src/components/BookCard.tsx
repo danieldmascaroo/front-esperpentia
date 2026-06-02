@@ -62,22 +62,28 @@ function BookCardComponent({ book, variant = "default" }: BookCardProps) {
   }, [book.id, buyNow, navigate])
 
   return (
-    <article className="group relative flex h-auto flex-col overflow-hidden border border-border/50 bg-card transition-all duration-300 hover:border-border/80 hover:shadow-md">
+    <motion.article
+      className="group relative flex h-auto flex-col overflow-hidden border border-border/50 bg-card transition-all duration-300 hover:border-border/80 hover:shadow-md"
+      variants={softRiseItem}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, amount: 0.2 }}
+    >
       {/* Banner negro con tÃ­tulo (portada) */}
       <div
         className={
           variant === "featured"
-            ? "flex h-12 items-start bg-black px-3 py-2 text-white"
+            ? "flex h-10 items-start bg-black px-2 py-1.5 text-white sm:h-12 sm:px-3 sm:py-2"
             : "flex h-24 items-start bg-black px-5 py-4 text-white"
         }
       >
-        <h2 className={variant === "featured" ? "line-clamp-2 text-lg font-medium leading-snug sm:text-xl" : "line-clamp-3 text-lg font-medium leading-snug sm:text-xl"}>
+        <h2 className={variant === "featured" ? "line-clamp-2 text-sm font-medium leading-tight sm:text-xl sm:leading-snug" : "line-clamp-3 text-lg font-medium leading-snug sm:text-xl"}>
           {book.nombre}
         </h2>
       </div>
 
       {/* Imagen */}
-      <div className={variant === "featured" ? "relative flex h-36 w-full shrink-0 items-center justify-center overflow-hidden bg-secondary sm:h-40" : "relative flex h-56 w-full shrink-0 items-center justify-center overflow-hidden bg-secondary sm:h-64"}>
+      <div className={variant === "featured" ? "relative flex h-24 w-full shrink-0 items-center justify-center overflow-hidden bg-secondary sm:h-40" : "relative flex h-56 w-full shrink-0 items-center justify-center overflow-hidden bg-secondary sm:h-64"}>
         {imageSrc ? (
           <img
             src={imageSrc}
@@ -93,17 +99,17 @@ function BookCardComponent({ book, variant = "default" }: BookCardProps) {
       </div>
 
       {/* Contenido minimalista */}
-      <div className={variant === "featured" ? "flex flex-1 flex-col gap-2 p-3" : "flex flex-1 flex-col gap-3 p-6"}>
+      <div className={variant === "featured" ? "flex flex-1 flex-col gap-1.5 p-2 sm:gap-2 sm:p-3" : "flex flex-1 flex-col gap-3 p-6"}>
         {/* InformaciÃ³n del autor */}
         <div className="flex-1">
-          <p className={variant === "featured" ? "line-clamp-1 text-xs text-muted-foreground" : "text-sm text-muted-foreground line-clamp-1"}>
+          <p className={variant === "featured" ? "line-clamp-1 text-[11px] text-muted-foreground sm:text-xs" : "text-sm text-muted-foreground line-clamp-1"}>
             {book.autor.nombre}
           </p>
         </div>
 
         {/* Precio */}
         <div className={variant === "featured" ? "border-t border-border/30 pt-2" : "border-t border-border/30 pt-3"}>
-          <p className={variant === "featured" ? "text-base font-semibold text-foreground" : "text-lg font-semibold text-foreground"}>
+          <p className={variant === "featured" ? "text-sm font-semibold text-foreground sm:text-base" : "text-lg font-semibold text-foreground"}>
             {formatCurrency(book.precio, book.moneda)}
           </p>
         </div>
@@ -152,7 +158,7 @@ function BookCardComponent({ book, variant = "default" }: BookCardProps) {
             <>
               <button
                 type="button"
-                className="inline-flex h-9 w-full items-center justify-center rounded border border-border/60 bg-foreground text-sm font-medium text-background transition-colors hover:bg-foreground/90 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex h-8 w-full items-center justify-center rounded border border-border/60 bg-foreground px-1 text-xs font-medium text-background transition-colors hover:bg-foreground/90 disabled:cursor-not-allowed disabled:opacity-50 sm:h-9 sm:text-sm"
                 disabled={shouldDisableAllButtons}
                 onClick={handleBuyNow}
               >
@@ -163,7 +169,7 @@ function BookCardComponent({ book, variant = "default" }: BookCardProps) {
                 size="sm"
                 nativeButton={false}
                 render={<Link to={`/catalogo/${book.id}`} />}
-                className="h-9 w-full rounded text-sm font-medium"
+                className="h-8 w-full rounded px-1 text-xs font-medium sm:h-9 sm:text-sm"
                 disabled={shouldDisableAllButtons}
               >
                 Ver detalles
@@ -172,7 +178,7 @@ function BookCardComponent({ book, variant = "default" }: BookCardProps) {
           )}
         </div>
       </div>
-    </article>
+    </motion.article>
   )
 }
 

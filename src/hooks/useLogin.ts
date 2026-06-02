@@ -1,6 +1,7 @@
 ﻿import { useState } from "react"
 
 import { useAuth } from "@/auth/useAuth"
+import { toFriendlyErrorMessage } from "@/lib/human-errors"
 import type { AuthCredentials } from "@/pages/types"
 
 export function useLogin() {
@@ -15,7 +16,7 @@ export function useLogin() {
     try {
       return await loginWithAuth(credentials)
     } catch (err) {
-      const message = err instanceof Error ? err.message : "No se pudo iniciar sesión"
+      const message = toFriendlyErrorMessage(err, "No pudimos iniciar sesión. Intenta nuevamente.")
       setError(message)
       throw err
     } finally {

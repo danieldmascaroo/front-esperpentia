@@ -3,6 +3,7 @@ import { Filter } from "lucide-react"
 
 import { BookCard, BookCardSkeleton } from "@/components/BookCard"
 import { BookFilters, type BookFilters as BookFiltersType } from "@/components/BookFilters"
+import { FriendlyErrorAlert } from "@/components/FriendlyErrorAlert"
 import { FilterModal } from "@/components/FilterModal"
 import {
   Pagination,
@@ -18,6 +19,7 @@ import {
   getCatalogGenres,
   getCatalogPublishers,
 } from "@/lib/api"
+import { toFriendlyErrorMessage } from "@/lib/human-errors"
 import type {
   CatalogAuthor,
   CatalogBook,
@@ -100,7 +102,7 @@ export function CatalogPage() {
         setPublishers(publishersData)
       } catch (loadError) {
         if (!ignore) {
-          setError(loadError instanceof Error ? loadError.message : "No se pudieron cargar los filtros")
+          setError(toFriendlyErrorMessage(loadError, "No pudimos cargar los filtros por ahora."))
         }
       }
     }
@@ -137,7 +139,7 @@ export function CatalogPage() {
         setTotalPages(Math.max(1, Math.ceil(pageData.count / CATALOG_PAGE_SIZE)))
       } catch (loadError) {
         if (!ignore) {
-          setError(loadError instanceof Error ? loadError.message : "No se pudo cargar el catálogo")
+          setError(toFriendlyErrorMessage(loadError, "No pudimos cargar el catálogo por ahora."))
         }
       } finally {
         if (!ignore) {
@@ -222,9 +224,7 @@ export function CatalogPage() {
 
         {/* Grid de libros */}
         {error ? (
-          <div className="rounded-[2rem] border border-destructive/20 bg-destructive/8 px-6 py-5 text-sm text-destructive">
-            {error}
-          </div>
+          <FriendlyErrorAlert message={error} className="rounded-[2rem] px-6 py-5" />
         ) : null}
 
         {isLoading ? (

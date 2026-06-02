@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 
+import { Spinner } from "@/components/ui/spinner"
 import { getBlogPostById, resolveMediaUrl } from "@/lib/api"
 import type { BlogPost } from "@/pages/types"
 
@@ -35,7 +36,11 @@ export function BlogPostPage() {
   }, [postId])
 
   if (loading) {
-    return <p className="text-sm text-muted-foreground">Cargando entrada...</p>
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <Spinner className="h-12 w-12 text-foreground" />
+      </div>
+    )
   }
 
   if (error || !post) {

@@ -4,11 +4,13 @@ import { Controller, useForm } from "react-hook-form"
 import { z } from "zod"
 
 import { BannerDiv } from "@/components/BannerDiv"
+import { FriendlyErrorAlert } from "@/components/FriendlyErrorAlert"
 import { Button } from "@/components/ui/button"
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
 import { getComunas, getRegions, registerUser } from "@/lib/api"
+import { toFriendlyErrorMessage } from "@/lib/human-errors"
 import { cn } from "@/lib/utils"
 import type { Comuna, Region } from "@/pages/types"
 
@@ -226,7 +228,7 @@ export function RegisterPage() {
         if (!active) {
           return
         }
-        const text = err instanceof Error ? err.message : "Error inesperado"
+        const text = toFriendlyErrorMessage(err, "No pudimos cargar las regiones por ahora.")
         setError(text)
       } finally {
         if (active) {
@@ -267,7 +269,7 @@ export function RegisterPage() {
         if (!active) {
           return
         }
-        const text = err instanceof Error ? err.message : "Error inesperado"
+        const text = toFriendlyErrorMessage(err, "No pudimos cargar las comunas por ahora.")
         setError(text)
       } finally {
         if (active) {
@@ -302,7 +304,7 @@ export function RegisterPage() {
       reset()
       setMessage("Cuenta creada. Revisa tu correo para activar el usuario.")
     } catch (err) {
-      const text = err instanceof Error ? err.message : "Error inesperado"
+      const text = toFriendlyErrorMessage(err, "No pudimos crear tu cuenta. Intenta nuevamente.")
       setError(text)
     }
   }
@@ -470,7 +472,7 @@ export function RegisterPage() {
         </FieldGroup>
 
         {message ? <p className="text-sm text-emerald-600">{message}</p> : null}
-        {error ? <p className="text-sm text-destructive">{error}</p> : null}
+        {error ? <FriendlyErrorAlert message={error} /> : null}
 
         <Button
           type="submit"

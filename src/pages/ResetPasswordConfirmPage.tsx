@@ -6,10 +6,12 @@ import { z } from "zod"
 
 import { confirmPasswordReset } from "@/api/authApi"
 import { BannerDiv } from "@/components/BannerDiv"
+import { FriendlyErrorAlert } from "@/components/FriendlyErrorAlert"
 import { Button } from "@/components/ui/button"
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
+import { toFriendlyErrorMessage } from "@/lib/human-errors"
 
 const resetPasswordSchema = z
   .object({
@@ -66,7 +68,7 @@ export function ResetPasswordConfirmPage() {
         },
       })
     } catch (error) {
-      setServerError(error instanceof Error ? error.message : "No pudimos restablecer tu contraseña.")
+      setServerError(toFriendlyErrorMessage(error, "No pudimos restablecer tu contraseña."))
     }
   })
 
@@ -101,7 +103,7 @@ export function ResetPasswordConfirmPage() {
           </Field>
         </FieldGroup>
 
-        {serverError ? <p className="text-sm text-destructive">{serverError}</p> : null}
+        {serverError ? <FriendlyErrorAlert message={serverError} /> : null}
 
         <Button type="submit" variant="black" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? (
