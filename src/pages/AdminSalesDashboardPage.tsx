@@ -139,7 +139,7 @@ export function AdminSalesDashboardPage() {
           </div>
           <input className="rounded-md border border-input px-2 py-1.5 text-sm" type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
           <input className="rounded-md border border-input px-2 py-1.5 text-sm" type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
-          <select className="rounded-md border border-input px-2 py-1.5 text-sm" value={status} onChange={(e) => setStatus(e.target.value as SalesStatusFilter)}>
+          <select className="rounded-md border border-input bg-white px-2 py-1.5 text-sm" value={status} onChange={(e) => setStatus(e.target.value as SalesStatusFilter)}>
             <option value="completed">Completadas</option>
             <option value="refunded">Reembolsadas</option>
             <option value="cancelled">Canceladas</option>

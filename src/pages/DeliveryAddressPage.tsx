@@ -6,6 +6,7 @@ import { convertCart, createCustomerAddress, createPaymentIntent, getOrCreateGue
 import { useAuth } from "@/auth/useAuth"
 import { useCart } from "@/commerce/useCart"
 import { quoteChilexpressRate, searchChilexpressStreets, type ChilexpressStreet } from "@/api/chilexpressApi"
+import { formActionButtonClassName, formInputClassName } from "@/components/form-styles"
 import { PurchaseForm, PurchaseFormRow } from "@/components/PurchaseForm"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -15,9 +16,6 @@ import { formatCurrency, getCartBookCount, getChilexpressPackageForBooks } from 
 import { getComunas, getRegions } from "@/lib/api"
 import { cn } from "@/lib/utils"
 import type { Comuna, PaymentIntent, Region } from "@/pages/types"
-
-const lineInputClassName =
-  "h-9 border-0 border-b border-input rounded-none bg-transparent px-0 text-sm shadow-none focus-visible:ring-0 focus-visible:border-ring"
 
 type SearchableOption = {
   value: string
@@ -65,7 +63,7 @@ function SearchableLineSelect({
     <div className="relative">
       <Input
         id={id}
-        className={lineInputClassName}
+        className={formInputClassName}
         value={isOpen ? query : selectedOption?.label ?? query}
         placeholder={placeholder}
         autoComplete="off"
@@ -546,7 +544,7 @@ export function DeliveryAddressPage() {
               >
                 <Input
                   id="guest-name"
-                  className={lineInputClassName}
+                  className={formInputClassName}
                   value={guestName}
                   autoComplete="given-name"
                   placeholder="Nombre"
@@ -557,7 +555,7 @@ export function DeliveryAddressPage() {
                 />
                 <Input
                   id="guest-last-name"
-                  className={lineInputClassName}
+                  className={formInputClassName}
                   value={guestLastName}
                   autoComplete="family-name"
                   placeholder="Apellido"
@@ -568,7 +566,7 @@ export function DeliveryAddressPage() {
                 />
                 <Input
                   id="guest-phone"
-                  className={lineInputClassName}
+                  className={formInputClassName}
                   value={guestPhone}
                   autoComplete="tel"
                   placeholder="teléfono de contacto"
@@ -580,7 +578,7 @@ export function DeliveryAddressPage() {
                 <Input
                   id="guest-email"
                   type="email"
-                  className={lineInputClassName}
+                  className={formInputClassName}
                   value={guestEmail}
                   autoComplete="email"
                   placeholder="Email de contacto"
@@ -653,7 +651,7 @@ export function DeliveryAddressPage() {
                 <div className="relative">
                   <Input
                     id="street"
-                    className={`${lineInputClassName} pr-8`}
+                    className={`${formInputClassName} pr-8`}
                     value={streetQuery}
                     autoComplete="street-address"
                     placeholder="Escribe el nombre de tu calle"
@@ -718,7 +716,7 @@ export function DeliveryAddressPage() {
 
                 <Input
                   id="street-number"
-                  className={lineInputClassName}
+                  className={formInputClassName}
                   value={streetNumber}
                   inputMode="numeric"
                   autoComplete="address-line2"
@@ -735,12 +733,12 @@ export function DeliveryAddressPage() {
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-between">
-            <Button variant="outline" nativeButton={false} render={<Link to="/checkout" />}>
+            <Button variant="outline" className={formActionButtonClassName} nativeButton={false} render={<Link to="/checkout" />}>
               <ArrowLeft className="size-4" />
               Volver al carrito
             </Button>
 
-            <Button variant="submit" disabled={!selectedStreet || !streetNumber.trim() || !isGuestContactComplete || isStartingPayment} onClick={() => void handleContinueToPayment()}>
+            <Button variant="black" className={formActionButtonClassName} disabled={!selectedStreet || !streetNumber.trim() || !isGuestContactComplete || isStartingPayment} onClick={() => void handleContinueToPayment()}>
               {isStartingPayment ? "Redirigiendo a Webpay..." : "Pagar con Webpay"}
             </Button>
           </div>

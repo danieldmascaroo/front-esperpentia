@@ -23,13 +23,12 @@ export const fadeUpItem: Variants = {
 }
 
 export const softRiseItem: Variants = {
-  hidden: { opacity: 0, y: 10 },
+  hidden: { opacity: 0 },
   show: {
     opacity: 1,
-    y: 0,
     transition: {
-      duration: 0.38,
-      ease: [0.22, 1, 0.36, 1],
+      duration: 0.45,
+      ease: "easeOut",
     },
   },
 }

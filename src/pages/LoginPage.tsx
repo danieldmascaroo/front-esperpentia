@@ -4,7 +4,6 @@ import { Link, Navigate, useLocation, useNavigate } from "react-router-dom"
 import { z } from "zod"
 
 import { useAuth } from "@/auth/useAuth"
-import { BannerDiv } from "@/components/BannerDiv"
 import { FriendlyErrorAlert } from "@/components/FriendlyErrorAlert"
 import { Button } from "@/components/ui/button"
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
@@ -65,64 +64,94 @@ export function LoginPage() {
   }
 
   return (
-    <BannerDiv title="INICIO DE SESIÓN" subtitle="Ingresa con tu email y password." className="max-w-md">
-      <form className="space-y-5" onSubmit={submitHandler}>
-        <FieldGroup>
-          <Field>
-            <FieldLabel htmlFor="email">Email</FieldLabel>
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              placeholder="tu@email.com"
-              aria-invalid={errors.email ? "true" : "false"}
-              {...register("email")}
-            />
-            <FieldError errors={[errors.email]} />
-          </Field>
+    <section className="mx-auto flex min-h-[calc(100vh-12rem)] w-full max-w-md items-center justify-center px-4 py-10">
+      <div className="w-full">
+        <div className="mb-8 space-y-2">
+          <p className="text-xs font-medium tracking-[0.22em] uppercase text-muted-foreground">
+            Inicio de sesión
+          </p>
+          <h1 className="text-3xl font-semibold tracking-[-0.03em] text-foreground">
+            Entra a tu cuenta
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Ingresa tu correo y contraseña.
+          </p>
+        </div>
 
-          <Field>
-            <FieldLabel htmlFor="password">Password</FieldLabel>
-            <Input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              placeholder="Tu password"
-              aria-invalid={errors.password ? "true" : "false"}
-              {...register("password")}
-            />
-            <FieldError errors={[errors.password]} />
-          </Field>
-        </FieldGroup>
+        <form className="space-y-6" onSubmit={submitHandler}>
+          <FieldGroup className="gap-5">
+            <Field>
+              <FieldLabel htmlFor="email" className="text-sm font-medium text-foreground">
+                Email
+              </FieldLabel>
+              <Input
+                id="email"
+                type="email"
+                autoComplete="email"
+                placeholder="tu@email.com"
+                aria-invalid={errors.email ? "true" : "false"}
+                className="h-11 rounded-none border-0 border-b border-border bg-white px-3 py-0 text-sm shadow-none focus-visible:border-foreground focus-visible:ring-0"
+                {...register("email")}
+              />
+              <FieldError className="text-xs" errors={[errors.email]} />
+            </Field>
 
-        {error ? <FriendlyErrorAlert message={error} /> : null}
-        {error ? (
-          <p className="text-sm">
-            <Link to="/password/reset" className="text-muted-foreground underline underline-offset-2 hover:text-foreground">
-              ¿Olvidaste tu contraseña?
+            <Field>
+              <div className="flex items-center justify-between gap-3">
+                <FieldLabel htmlFor="password" className="text-sm font-medium text-foreground">
+                  Contraseña
+                </FieldLabel>
+                <Link
+                  to="/password/reset"
+                  className="text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
+                >
+                  ¿Olvidaste tu contraseña?
+                </Link>
+              </div>
+              <Input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                placeholder="Tu contraseña"
+                aria-invalid={errors.password ? "true" : "false"}
+                className="h-11 rounded-none border-0 border-b border-border bg-white px-3 py-0 text-sm shadow-none focus-visible:border-foreground focus-visible:ring-0"
+                {...register("password")}
+              />
+              <FieldError className="text-xs" errors={[errors.password]} />
+            </Field>
+          </FieldGroup>
+
+          {error ? <FriendlyErrorAlert message={error} className="rounded-none border-x-0" /> : null}
+          {passwordResetSuccess ? (
+            <p className="border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+              {passwordResetSuccess}
+            </p>
+          ) : null}
+
+          <Button
+            type="submit"
+            variant="black"
+            className="h-11 w-full rounded-none text-sm font-medium shadow-none"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <span className="flex items-center justify-center gap-2">
+                <Spinner className="size-4 text-current" />
+                <span>Entrando...</span>
+              </span>
+            ) : (
+              "Entrar"
+            )}
+          </Button>
+
+          <p className="text-center text-sm text-muted-foreground">
+            ¿No tienes cuenta?{" "}
+            <Link to="/registro" className="text-foreground underline underline-offset-4 hover:text-foreground/80">
+              Crea una aquí
             </Link>
           </p>
-        ) : null}
-        {passwordResetSuccess ? <p className="text-sm text-emerald-600">{passwordResetSuccess}</p> : null}
-
-        <Button type="submit" variant="black" className="w-full" disabled={isLoading}>
-          {isLoading ? (
-            <span className="flex items-center justify-center gap-2">
-              <Spinner className="size-4 text-current" />
-              <span>Entrando...</span>
-            </span>
-          ) : (
-            "Entrar"
-          )}
-        </Button>
-
-        <p className="text-center text-sm text-muted-foreground">
-          ¿No tienes cuenta?{" "}
-          <Link to="/registro" className="underline underline-offset-2 hover:text-foreground">
-            Crea una aquí
-          </Link>
-        </p>
-      </form>
-    </BannerDiv>
+        </form>
+      </div>
+    </section>
   )
 }

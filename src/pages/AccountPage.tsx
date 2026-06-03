@@ -4,7 +4,12 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 
 import { useAuth } from "@/auth/useAuth"
-import { BannerDiv } from "@/components/BannerDiv"
+import {
+  formActionButtonClassName,
+  formInputClassName,
+  formSectionClassName,
+  formSelectClassName,
+} from "@/components/form-styles"
 import { Button } from "@/components/ui/button"
 import { FieldError } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
@@ -21,9 +26,6 @@ const accountSchema = z.object({
 })
 
 type AccountFormValues = z.infer<typeof accountSchema>
-
-const selectClassName =
-  "h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive"
 
 function buildFormValues(user: AccountPageUser): AccountFormValues {
   return {
@@ -49,7 +51,7 @@ function ProfileRow({
   error?: { message?: string }
 }) {
   return (
-    <div className="grid gap-1 border-b border-border/70 py-4 sm:grid-cols-[11rem_minmax(0,1fr)] sm:items-start sm:gap-4">
+    <div className="grid gap-1 border-b border-border/70 py-4 sm:grid-cols-[11rem_minmax(0,1fr)] sm:items-start sm:gap-5">
       <p className="text-xs font-medium tracking-[0.2em] uppercase text-muted-foreground">{label}</p>
       <div className="min-w-0">
         {children ?? <p className="text-sm text-foreground">{value || "-"}</p>}
@@ -219,11 +221,11 @@ export function AccountPage() {
 
   if (authLoading) {
     return (
-      <BannerDiv title="CUENTA" subtitle="Resumen de tu sesión autenticada." className="max-w-5xl">
-        <div className="flex min-h-64 items-center justify-center rounded-[1.75rem] border border-border bg-card/80">
+      <section className="mx-auto w-full max-w-5xl px-4 py-10">
+        <div className="flex min-h-64 items-center justify-center border border-border/70 bg-background">
           <Spinner className="size-6 text-muted-foreground" />
         </div>
-      </BannerDiv>
+      </section>
     )
   }
 
@@ -237,7 +239,18 @@ export function AccountPage() {
         : "Selecciona una comuna"
 
   return (
-    <BannerDiv title="CUENTA" subtitle="Administra tus datos de perfil y entrega." className="max-w-5xl">
+    <section className="mx-auto w-full max-w-5xl px-4 py-10">
+        <div className="mb-8 space-y-2">
+          <p className="text-xs font-medium tracking-[0.22em] uppercase text-muted-foreground">
+            Cuenta
+          </p>
+          <h1 className="text-3xl font-semibold tracking-[-0.03em] text-foreground">
+            Información de tu cuenta
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Administra tus datos de perfil y entrega.
+          </p>
+        </div>
         <div className="mb-2">
           <p className="text-xs font-medium tracking-[0.2em] uppercase text-muted-foreground">
             Datos del perfil
@@ -246,7 +259,7 @@ export function AccountPage() {
         </div>
 
         {isEditing ? (
-          <form className="mt-6" onSubmit={submitHandler}>
+          <form className={`mt-6 ${formSectionClassName}`} onSubmit={submitHandler}>
             <ProfileRow label="Email" value={user?.email ?? "-"} />
             <ProfileRow
               label="Nombre"
@@ -258,6 +271,7 @@ export function AccountPage() {
                   autoComplete="given-name"
                   placeholder="Nombre"
                   aria-invalid={errors.nombre ? "true" : "false"}
+                  className={formInputClassName}
                   {...register("nombre")}
                 />
                 <Input
@@ -265,6 +279,7 @@ export function AccountPage() {
                   autoComplete="family-name"
                   placeholder="Apellido"
                   aria-invalid={errors.apellido ? "true" : "false"}
+                  className={formInputClassName}
                   {...register("apellido")}
                 />
               </div>
@@ -275,13 +290,14 @@ export function AccountPage() {
                 autoComplete="street-address"
                 placeholder="Dirección de entrega"
                 aria-invalid={errors.direccion ? "true" : "false"}
+                className={formInputClassName}
                 {...register("direccion")}
               />
             </ProfileRow>
             <ProfileRow label="Region" error={errors.regionId}>
               <select
                 id="region"
-                className={selectClassName}
+                className={formSelectClassName}
                 aria-invalid={errors.regionId ? "true" : "false"}
                 disabled={loadingRegions}
                 {...register("regionId")}
@@ -297,7 +313,7 @@ export function AccountPage() {
             <ProfileRow label="Comuna" error={errors.comunaId}>
               <select
                 id="comuna"
-                className={selectClassName}
+                className={formSelectClassName}
                 aria-invalid={errors.comunaId ? "true" : "false"}
                 disabled={!regionId || loadingComunas}
                 {...register("comunaId")}
@@ -317,7 +333,8 @@ export function AccountPage() {
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <Button
                 type="submit"
-                variant="submit"
+                variant="black"
+                className={formActionButtonClassName}
                 disabled={isSubmitting || loadingRegions || loadingComunas}
               >
                 {isSubmitting ? (
@@ -332,6 +349,7 @@ export function AccountPage() {
               <Button
                 type="button"
                 variant="outline"
+                className={formActionButtonClassName}
                 onClick={handleCancelEdit}
               >
                 Cancelar
@@ -351,13 +369,13 @@ export function AccountPage() {
             {saveError ? <p className="mt-5 text-sm text-destructive">{saveError}</p> : null}
 
             <div className="mt-6">
-              <Button type="button" variant="submit" onClick={() => setIsEditing(true)}>
+              <Button type="button" variant="black" className={formActionButtonClassName} onClick={() => setIsEditing(true)}>
                 Actualizar datos
               </Button>
             </div>
           </div>
         )}
-    </BannerDiv>
+    </section>
   )
 }
 

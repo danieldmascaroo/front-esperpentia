@@ -1,5 +1,6 @@
 import type { PropsWithChildren, ReactNode } from "react"
 
+import { formSectionClassName } from "@/components/form-styles"
 import { cn } from "@/lib/utils"
 
 type PurchaseFormRowProps = PropsWithChildren<{
@@ -10,7 +11,7 @@ type PurchaseFormRowProps = PropsWithChildren<{
 
 export function PurchaseForm({ children, className }: PropsWithChildren<{ className?: string }>) {
   return (
-    <div className={cn("border-y border-border/70", className)}>
+    <div className={cn(formSectionClassName, className)}>
       {children}
     </div>
   )
@@ -18,8 +19,8 @@ export function PurchaseForm({ children, className }: PropsWithChildren<{ classN
 
 export function PurchaseFormRow({ label, description, className, children }: PurchaseFormRowProps) {
   return (
-    <div className={cn("grid gap-2 border-b border-border/70 py-4 last:border-b-0 md:grid-cols-[11rem_minmax(0,1fr)] md:gap-4", className)}>
-      <p className="text-sm font-medium text-foreground">{label}</p>
+    <div className={cn("grid gap-2 border-b border-border/70 py-4 last:border-b-0 md:grid-cols-[11rem_minmax(0,1fr)] md:gap-5", className)}>
+      <p className="text-xs font-medium tracking-[0.22em] uppercase text-muted-foreground">{label}</p>
       <div className="min-w-0 space-y-2">
         {children}
         {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}

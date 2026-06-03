@@ -3,8 +3,8 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
 import { z } from "zod"
 
-import { BannerDiv } from "@/components/BannerDiv"
 import { FriendlyErrorAlert } from "@/components/FriendlyErrorAlert"
+import { formActionButtonClassName, formInputClassName } from "@/components/form-styles"
 import { Button } from "@/components/ui/button"
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
@@ -90,6 +90,7 @@ function SearchableSelect({
     <div className="relative">
       <Input
         id={id}
+        className={formInputClassName}
         value={isOpen ? query : selectedOption?.label ?? query}
         placeholder={placeholder}
         autoComplete="off"
@@ -120,7 +121,7 @@ function SearchableSelect({
       {isOpen ? (
         <div
           className={cn(
-            "absolute top-full z-50 mt-2 max-h-64 w-full overflow-y-auto rounded-lg border border-border bg-popover p-1 shadow-md ring-1 ring-foreground/10",
+            "absolute top-full z-50 mt-2 max-h-64 w-full overflow-y-auto border border-border bg-popover p-1 shadow-md ring-1 ring-foreground/10",
             "animate-in fade-in-0 zoom-in-95"
           )}
         >
@@ -314,75 +315,93 @@ export function RegisterPage() {
   })
 
   return (
-    <BannerDiv title="REGISTRO" subtitle="Crea tu cuenta para comprar en Esperpentia.">
-      <form className="space-y-5" onSubmit={submitHandler}>
+    <section className="mx-auto flex min-h-[calc(100vh-12rem)] w-full max-w-xl items-center justify-center px-4 py-10">
+      <div className="w-full">
+        <div className="mb-8 space-y-2">
+          <p className="text-xs font-medium tracking-[0.22em] uppercase text-muted-foreground">
+            Registro
+          </p>
+          <h1 className="text-3xl font-semibold tracking-[-0.03em] text-foreground">
+            Crea tu cuenta
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Completa tus datos para comprar en Esperpentia.
+          </p>
+        </div>
+
+        <form className="space-y-6" onSubmit={submitHandler}>
         <FieldGroup>
           <Field>
-            <FieldLabel htmlFor="email">Email</FieldLabel>
+            <FieldLabel htmlFor="email" className="text-sm font-medium text-foreground">Email</FieldLabel>
             <Input
               id="email"
               type="email"
               autoComplete="email"
               placeholder="tu@email.com"
               aria-invalid={errors.email ? "true" : "false"}
+              className={formInputClassName}
               {...register("email")}
             />
-            <FieldError errors={[errors.email]} />
+            <FieldError className="text-xs" errors={[errors.email]} />
           </Field>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field>
-              <FieldLabel htmlFor="nombre">Nombre</FieldLabel>
+              <FieldLabel htmlFor="nombre" className="text-sm font-medium text-foreground">Nombre</FieldLabel>
               <Input
                 id="nombre"
                 autoComplete="given-name"
                 placeholder="Tu nombre"
                 aria-invalid={errors.nombre ? "true" : "false"}
+                className={formInputClassName}
                 {...register("nombre")}
               />
-              <FieldError errors={[errors.nombre]} />
+              <FieldError className="text-xs" errors={[errors.nombre]} />
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="apellido">Apellido</FieldLabel>
+              <FieldLabel htmlFor="apellido" className="text-sm font-medium text-foreground">Apellido</FieldLabel>
               <Input
                 id="apellido"
                 autoComplete="family-name"
                 placeholder="Tu apellido"
                 aria-invalid={errors.apellido ? "true" : "false"}
+                className={formInputClassName}
                 {...register("apellido")}
               />
-              <FieldError errors={[errors.apellido]} />
+              <FieldError className="text-xs" errors={[errors.apellido]} />
             </Field>
           </div>
 
           <Field>
-            <FieldLabel htmlFor="direccion">Dirección de entrega</FieldLabel>
+            <FieldLabel htmlFor="direccion" className="text-sm font-medium text-foreground">Dirección de entrega</FieldLabel>
             <Input
               id="direccion"
               autoComplete="street-address"
               placeholder="Calle, número, comuna"
               aria-invalid={errors.direccion ? "true" : "false"}
+              className={formInputClassName}
               {...register("direccion")}
             />
-            <FieldError errors={[errors.direccion]} />
+            <FieldError className="text-xs" errors={[errors.direccion]} />
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="telefono">Teléfono</FieldLabel>
+            <FieldLabel htmlFor="telefono" className="text-sm font-medium text-foreground">Teléfono</FieldLabel>
             <Input
               id="telefono"
               autoComplete="tel"
               placeholder="+56 9 1234 5678"
               aria-invalid={errors.telefono ? "true" : "false"}
+              className={formInputClassName}
               {...register("telefono")}
             />
-            <FieldError errors={[errors.telefono]} />
+            <FieldError className="text-xs" errors={[errors.telefono]} />
           </Field>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field>
-              <FieldLabel htmlFor="region">Region</FieldLabel>
+              <FieldLabel htmlFor="region" className="text-sm font-medium text-foreground">Region</FieldLabel>
               <div className="space-y-2">
                 <Controller
                   control={control}
@@ -408,12 +427,12 @@ export function RegisterPage() {
                   </div>
                 ) : null}
               </div>
-              <FieldError errors={[errors.regionId]} />
+              <FieldError className="text-xs" errors={[errors.regionId]} />
             </Field>
 
             {regionId ? (
               <Field>
-                <FieldLabel htmlFor="comuna">Comuna</FieldLabel>
+                <FieldLabel htmlFor="comuna" className="text-sm font-medium text-foreground">Comuna</FieldLabel>
                 <div className="space-y-2">
                   <Controller
                     control={control}
@@ -439,44 +458,47 @@ export function RegisterPage() {
                     </div>
                   ) : null}
                 </div>
-                <FieldError errors={[errors.comunaId]} />
+                <FieldError className="text-xs" errors={[errors.comunaId]} />
               </Field>
             ) : null}
           </div>
 
           <Field>
-            <FieldLabel htmlFor="password">Password</FieldLabel>
+            <FieldLabel htmlFor="password" className="text-sm font-medium text-foreground">Password</FieldLabel>
             <Input
               id="password"
               type="password"
               autoComplete="new-password"
               placeholder="Minimo 8 caracteres"
               aria-invalid={errors.password ? "true" : "false"}
+              className={formInputClassName}
               {...register("password")}
             />
-            <FieldError errors={[errors.password]} />
+            <FieldError className="text-xs" errors={[errors.password]} />
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="re-password">Repetir password</FieldLabel>
+            <FieldLabel htmlFor="re-password" className="text-sm font-medium text-foreground">Repetir password</FieldLabel>
             <Input
               id="re-password"
               type="password"
               autoComplete="new-password"
               placeholder="Repite tu password"
               aria-invalid={errors.rePassword ? "true" : "false"}
+              className={formInputClassName}
               {...register("rePassword")}
             />
-            <FieldError errors={[errors.rePassword]} />
+            <FieldError className="text-xs" errors={[errors.rePassword]} />
           </Field>
         </FieldGroup>
 
-        {message ? <p className="text-sm text-emerald-600">{message}</p> : null}
-        {error ? <FriendlyErrorAlert message={error} /> : null}
+        {message ? <p className="border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{message}</p> : null}
+        {error ? <FriendlyErrorAlert message={error} className="rounded-none border-x-0" /> : null}
 
         <Button
           type="submit"
-          className="w-full bg-black text-white hover:bg-black/90"
+          variant="black"
+          className={`w-full ${formActionButtonClassName}`}
           disabled={isSubmitting || loadingRegions || loadingComunas}
         >
           {isSubmitting ? (
@@ -488,8 +510,9 @@ export function RegisterPage() {
             "Registrarme"
           )}
         </Button>
-      </form>
-    </BannerDiv>
+        </form>
+      </div>
+    </section>
   )
 }
 

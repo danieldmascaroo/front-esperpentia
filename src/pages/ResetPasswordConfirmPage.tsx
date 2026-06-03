@@ -5,8 +5,8 @@ import { Link, Navigate, useNavigate, useParams } from "react-router-dom"
 import { z } from "zod"
 
 import { confirmPasswordReset } from "@/api/authApi"
-import { BannerDiv } from "@/components/BannerDiv"
 import { FriendlyErrorAlert } from "@/components/FriendlyErrorAlert"
+import { formActionButtonClassName, formInputClassName } from "@/components/form-styles"
 import { Button } from "@/components/ui/button"
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
@@ -73,39 +73,54 @@ export function ResetPasswordConfirmPage() {
   })
 
   return (
-    <BannerDiv title="NUEVA PASSWORD" subtitle="Define una contraseña nueva para tu cuenta." className="max-w-md">
-      <form className="space-y-5" onSubmit={onSubmit}>
+    <section className="mx-auto flex min-h-[calc(100vh-12rem)] w-full max-w-md items-center justify-center px-4 py-10">
+      <div className="w-full">
+        <div className="mb-8 space-y-2">
+          <p className="text-xs font-medium tracking-[0.22em] uppercase text-muted-foreground">
+            Nueva contraseña
+          </p>
+          <h1 className="text-3xl font-semibold tracking-[-0.03em] text-foreground">
+            Define tu nueva clave
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Crea una contraseña nueva para tu cuenta.
+          </p>
+        </div>
+
+        <form className="space-y-6" onSubmit={onSubmit}>
         <FieldGroup>
           <Field>
-            <FieldLabel htmlFor="new-password">Nueva password</FieldLabel>
+            <FieldLabel htmlFor="new-password" className="text-sm font-medium text-foreground">Nueva password</FieldLabel>
             <Input
               id="new-password"
               type="password"
               autoComplete="new-password"
               placeholder="Nueva password"
               aria-invalid={errors.newPassword ? "true" : "false"}
+              className={formInputClassName}
               {...register("newPassword")}
             />
-            <FieldError errors={[errors.newPassword]} />
+            <FieldError className="text-xs" errors={[errors.newPassword]} />
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="re-new-password">Repite la nueva password</FieldLabel>
+            <FieldLabel htmlFor="re-new-password" className="text-sm font-medium text-foreground">Repite la nueva password</FieldLabel>
             <Input
               id="re-new-password"
               type="password"
               autoComplete="new-password"
               placeholder="Repite tu nueva password"
               aria-invalid={errors.reNewPassword ? "true" : "false"}
+              className={formInputClassName}
               {...register("reNewPassword")}
             />
-            <FieldError errors={[errors.reNewPassword]} />
+            <FieldError className="text-xs" errors={[errors.reNewPassword]} />
           </Field>
         </FieldGroup>
 
-        {serverError ? <FriendlyErrorAlert message={serverError} /> : null}
+        {serverError ? <FriendlyErrorAlert message={serverError} className="rounded-none border-x-0" /> : null}
 
-        <Button type="submit" variant="black" className="w-full" disabled={isSubmitting}>
+        <Button type="submit" variant="black" className={`w-full ${formActionButtonClassName}`} disabled={isSubmitting}>
           {isSubmitting ? (
             <span className="flex items-center justify-center gap-2">
               <Spinner className="size-4 text-current" />
@@ -117,11 +132,12 @@ export function ResetPasswordConfirmPage() {
         </Button>
 
         <p className="text-center text-sm text-muted-foreground">
-          <Link to="/login" className="underline underline-offset-2 hover:text-foreground">
+          <Link to="/login" className="underline underline-offset-4 hover:text-foreground">
             Volver al login
           </Link>
         </p>
-      </form>
-    </BannerDiv>
+        </form>
+      </div>
+    </section>
   )
 }

@@ -76,7 +76,8 @@ export function CatalogPage() {
   const [totalPages, setTotalPages] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
   const [isFilterLoading, setIsFilterLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [catalogError, setCatalogError] = useState<string | null>(null)
+  const [filterOptionsError, setFilterOptionsError] = useState<string | null>(null)
 
   useEffect(() => {
     setCurrentPage(1)
@@ -102,7 +103,9 @@ export function CatalogPage() {
         setPublishers(publishersData)
       } catch (loadError) {
         if (!ignore) {
-          setError(toFriendlyErrorMessage(loadError, "No pudimos cargar los filtros por ahora."))
+          setFilterOptionsError(
+            toFriendlyErrorMessage(loadError, "No pudimos cargar los filtros por ahora.")
+          )
         }
       }
     }
@@ -119,7 +122,7 @@ export function CatalogPage() {
     const firstLoad = books.length === 0 && currentPage === 1
     const nextFilters = buildBookFilters({ ...filters, titulo: deferredTitle })
 
-    setError(null)
+    setCatalogError(null)
     if (firstLoad) {
       setIsLoading(true)
     } else {
@@ -139,7 +142,7 @@ export function CatalogPage() {
         setTotalPages(Math.max(1, Math.ceil(pageData.count / CATALOG_PAGE_SIZE)))
       } catch (loadError) {
         if (!ignore) {
-          setError(toFriendlyErrorMessage(loadError, "No pudimos cargar el catálogo por ahora."))
+          setCatalogError(toFriendlyErrorMessage(loadError, "No pudimos cargar el catálogo por ahora."))
         }
       } finally {
         if (!ignore) {
@@ -193,23 +196,11 @@ export function CatalogPage() {
         isOpen={isFilterModalOpen}
         onClose={() => setIsFilterModalOpen(false)}
       >
-        <BookFilters
-          filters={filters}
-          onFilterChange={updateFilter}
-          onReset={resetFilters}
-          authors={authors}
-          genres={genres}
-          publishers={publishers}
-          bookCount={totalBooks}
-          isLoading={isFilterLoading}
-          onClose={() => setIsFilterModalOpen(false)}
-        />
-      </FilterModal>
+        <div className="space-y-4">
+          {filterOptionsError ? (
+            <FriendlyErrorAlert message={filterOptionsError} className="rounded-[1.5rem] px-4 py-4" />
+          ) : null}
 
-      {/* Contenido principal */}
-      <section className="grid gap-8 xl:grid-cols-[18rem_minmax(0,1fr)] xl:items-start">
-        {/* Sidebar de filtros - solo visible en desktop */}
-        <aside className="hidden xl:block xl:sticky xl:top-8">
           <BookFilters
             filters={filters}
             onFilterChange={updateFilter}
@@ -219,82 +210,107 @@ export function CatalogPage() {
             publishers={publishers}
             bookCount={totalBooks}
             isLoading={isFilterLoading}
+            onClose={() => setIsFilterModalOpen(false)}
           />
+        </div>
+      </FilterModal>
+
+      {/* Contenido principal */}
+      <section className="grid gap-8 xl:grid-cols-[18rem_minmax(0,1fr)] xl:items-start">
+        {/* Sidebar de filtros - solo visible en desktop */}
+        <aside className="hidden xl:block xl:sticky xl:top-8">
+          <div className="space-y-4">
+            {filterOptionsError ? (
+              <FriendlyErrorAlert message={filterOptionsError} className="rounded-[1.5rem] px-4 py-4" />
+            ) : null}
+
+            <BookFilters
+              filters={filters}
+              onFilterChange={updateFilter}
+              onReset={resetFilters}
+              authors={authors}
+              genres={genres}
+              publishers={publishers}
+              bookCount={totalBooks}
+              isLoading={isFilterLoading}
+            />
+          </div>
         </aside>
 
-        {/* Grid de libros */}
-        {error ? (
-          <FriendlyErrorAlert message={error} className="rounded-[2rem] px-6 py-5" />
-        ) : null}
+        <div className="min-w-0 space-y-6">
+          {catalogError ? (
+            <FriendlyErrorAlert message={catalogError} className="rounded-[2rem] px-6 py-5" />
+          ) : null}
 
-        {isLoading ? (
-          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, index) => (
-              <BookCardSkeleton key={index} />
-            ))}
-          </div>
-        ) : books.length > 0 ? (
-          <div className="space-y-6">
+          {isLoading ? (
             <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-              {books.map((book) => (
-                <BookCard key={book.id} book={book} />
+              {Array.from({ length: 6 }).map((_, index) => (
+                <BookCardSkeleton key={index} />
               ))}
             </div>
+          ) : books.length > 0 ? (
+            <div className="space-y-6">
+              <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                {books.map((book) => (
+                  <BookCard key={book.id} book={book} />
+                ))}
+              </div>
 
-            {totalPages > 1 ? (
-              <Pagination>
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      href="#"
-                      text="Anterior"
-                      onClick={(event) => {
-                        event.preventDefault()
-                        if (currentPage > 1) {
-                          setCurrentPage((previous) => previous - 1)
-                        }
-                      }}
-                      aria-disabled={currentPage <= 1}
-                      className={currentPage <= 1 ? "pointer-events-none opacity-50" : undefined}
-                    />
-                  </PaginationItem>
-
-                  {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
-                    <PaginationItem key={page}>
-                      <PaginationLink
+              {totalPages > 1 ? (
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
                         href="#"
-                        isActive={page === currentPage}
+                        text="Anterior"
                         onClick={(event) => {
                           event.preventDefault()
-                          setCurrentPage(page)
+                          if (currentPage > 1) {
+                            setCurrentPage((previous) => previous - 1)
+                          }
                         }}
-                      >
-                        {page}
-                      </PaginationLink>
+                        aria-disabled={currentPage <= 1}
+                        className={currentPage <= 1 ? "pointer-events-none opacity-50" : undefined}
+                      />
                     </PaginationItem>
-                  ))}
 
-                  <PaginationItem>
-                    <PaginationNext
-                      href="#"
-                      text="Siguiente"
-                      onClick={(event) => {
-                        event.preventDefault()
-                        if (currentPage < totalPages) {
-                          setCurrentPage((previous) => previous + 1)
-                        }
-                      }}
-                      aria-disabled={currentPage >= totalPages}
-                      className={currentPage >= totalPages ? "pointer-events-none opacity-50" : undefined}
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            ) : null}
-          </div>
-        ) : (
-          <EmptyState />
-        )}
+                    {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          href="#"
+                          isActive={page === currentPage}
+                          onClick={(event) => {
+                            event.preventDefault()
+                            setCurrentPage(page)
+                          }}
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ))}
+
+                    <PaginationItem>
+                      <PaginationNext
+                        href="#"
+                        text="Siguiente"
+                        onClick={(event) => {
+                          event.preventDefault()
+                          if (currentPage < totalPages) {
+                            setCurrentPage((previous) => previous + 1)
+                          }
+                        }}
+                        aria-disabled={currentPage >= totalPages}
+                        className={currentPage >= totalPages ? "pointer-events-none opacity-50" : undefined}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              ) : null}
+            </div>
+          ) : (
+            <EmptyState />
+          )}
+        </div>
       </section>
     </>
   )

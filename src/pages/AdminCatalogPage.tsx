@@ -4,11 +4,23 @@ import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
 
-import { BannerDiv } from "@/components/BannerDiv"
 import { BookFilters, type BookFilters as BookFiltersType } from "@/components/BookFilters"
+import {
+  FormSection,
+  formActionButtonClassName,
+  formCheckboxRowClassName,
+  formFileInputClassName,
+  formInputClassName,
+  formSectionClassName,
+  formSelectClassName,
+  formTextareaClassName,
+  formToggleButtonClassName,
+} from "@/components/form-styles"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
+import { Textarea } from "@/components/ui/textarea"
 import {
   createCatalogAuthor,
   createCatalogBook,
@@ -33,8 +45,7 @@ import type {
   CatalogWork,
 } from "@/pages/types"
 
-const selectClassName =
-  "h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive"
+const selectClassName = formSelectClassName
 
 function slugify(value: string) {
   return value
@@ -156,6 +167,61 @@ function fieldError(error?: { message?: string }) {
   }
 
   return <p className="text-xs text-destructive">{error.message}</p>
+}
+
+function AdminFormField({
+  children,
+  error,
+  className,
+}: {
+  children: React.ReactNode
+  error?: { message?: string }
+  className?: string
+}) {
+  return (
+    <div className={className}>
+      {children}
+      {fieldError(error)}
+    </div>
+  )
+}
+
+function AdminCheckboxField({
+  label,
+  checked,
+  onCheckedChange,
+  className,
+}: {
+  label: string
+  checked?: boolean
+  onCheckedChange: (checked: boolean) => void
+  className?: string
+}) {
+  return (
+    <label className={`${formCheckboxRowClassName} ${className ?? ""}`}>
+      <Checkbox checked={checked} onCheckedChange={(value) => onCheckedChange(Boolean(value))} />
+      <span>{label}</span>
+    </label>
+  )
+}
+
+function AdminFileField({
+  label,
+  children,
+  className,
+}: {
+  label: string
+  children: React.ReactNode
+  className?: string
+}) {
+  return (
+    <label className={className}>
+      <span className="mb-2 block text-xs font-medium tracking-[0.22em] uppercase text-muted-foreground">
+        {label}
+      </span>
+      {children}
+    </label>
+  )
 }
 
 function getFirstFile(value: unknown): File | null {
@@ -574,22 +640,30 @@ export function AdminCatalogPage() {
   }
 
   return (
-    <BannerDiv
-      title="Gestión DE catálogo"
-      subtitle="Solo staff. Crea autores, géneros, editoriales, obras y libros."
-      className="max-w-6xl"
-    >
+    <section className="mx-auto w-full max-w-6xl px-4 py-10">
+      <div className="mb-8 space-y-2">
+        <p className="text-xs font-medium tracking-[0.22em] uppercase text-muted-foreground">
+          Gestión de catálogo
+        </p>
+        <h1 className="text-3xl font-semibold tracking-[-0.03em] text-foreground">
+          Administración de libros
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Solo staff. Crea autores, géneros, editoriales, obras y libros.
+        </p>
+      </div>
       {isLoadingRefs ? (
         <div className="flex min-h-40 items-center justify-center">
           <Spinner className="size-6 text-muted-foreground" />
         </div>
       ) : (
         <div className="space-y-6">
-          <section className="flex flex-wrap items-center gap-2 rounded-xl border border-border/70 p-3">
+          <section className={`${formSectionClassName} flex flex-wrap items-center gap-2`}>
             <Button
               type="button"
               size="sm"
-              variant={viewMode === "create" ? "default" : "outline"}
+              variant={viewMode === "create" ? "black" : "outline"}
+              className={formToggleButtonClassName}
               onClick={() => setViewMode("create")}
             >
               Crear
@@ -597,7 +671,8 @@ export function AdminCatalogPage() {
             <Button
               type="button"
               size="sm"
-              variant={viewMode === "list" ? "default" : "outline"}
+              variant={viewMode === "list" ? "black" : "outline"}
+              className={formToggleButtonClassName}
               onClick={() => setViewMode("list")}
             >
               Ver lista de libros
@@ -606,301 +681,249 @@ export function AdminCatalogPage() {
 
           {viewMode === "create" ? (
             <div className="space-y-8">
-          <section className="space-y-3 rounded-xl border border-border/70 p-4">
-            <h2 className="text-lg font-semibold">Crear Autor</h2>
-            <form className="grid gap-3 md:grid-cols-2" onSubmit={submitAuthor}>
-              <div>
-                <Input placeholder="Nombre" aria-invalid={authorForm.formState.errors.nombre ? "true" : "false"} {...authorForm.register("nombre")} />
-                {fieldError(authorForm.formState.errors.nombre)}
-              </div>
-              <div>
-                <Input placeholder="Identificador web (slug, opcional)" {...authorForm.register("slug")} />
-              </div>
-              <div className="md:col-span-2">
-                <textarea
-                  className="min-h-20 w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm"
-                  placeholder="biografia (opcional)"
-                  {...authorForm.register("biografia")}
-                />
-              </div>
-              <div>
-                <Input type="date" placeholder="Fecha de nacimiento (opcional)" {...authorForm.register("fecha_nacimiento")} />
-              </div>
-              <div>
-                <Input placeholder="Nacionalidad (opcional)" {...authorForm.register("nacionalidad")} />
-              </div>
-              <label className="md:col-span-2">
-                <span className="mb-1 block text-sm text-muted-foreground">Imagen autor (opcional)</span>
-                <input type="file" accept="image/*" {...authorForm.register("imagen")} />
-              </label>
-              <Button type="submit" variant="submit" disabled={authorForm.formState.isSubmitting} className="md:col-span-2">
-                {authorForm.formState.isSubmitting ? <Spinner className="size-4" /> : null}
-                Crear autor
-              </Button>
-            </form>
-          </section>
+              <FormSection eyebrow="Catálogo" title="Crear autor" description="Usa la misma estructura visual del login para mantener consistencia en administración.">
+                <form className="grid gap-4 md:grid-cols-2" onSubmit={submitAuthor}>
+                  <AdminFormField error={authorForm.formState.errors.nombre}>
+                    <Input className={formInputClassName} placeholder="Nombre" aria-invalid={authorForm.formState.errors.nombre ? "true" : "false"} {...authorForm.register("nombre")} />
+                  </AdminFormField>
+                  <AdminFormField>
+                    <Input className={formInputClassName} placeholder="Identificador web (slug, opcional)" {...authorForm.register("slug")} />
+                  </AdminFormField>
+                  <AdminFormField className="md:col-span-2">
+                    <Textarea className={formTextareaClassName} placeholder="Biografía (opcional)" {...authorForm.register("biografia")} />
+                  </AdminFormField>
+                  <AdminFormField>
+                    <Input className={formInputClassName} type="date" placeholder="Fecha de nacimiento (opcional)" {...authorForm.register("fecha_nacimiento")} />
+                  </AdminFormField>
+                  <AdminFormField>
+                    <Input className={formInputClassName} placeholder="Nacionalidad (opcional)" {...authorForm.register("nacionalidad")} />
+                  </AdminFormField>
+                  <AdminFileField label="Imagen autor (opcional)" className="md:col-span-2">
+                    <input className={formFileInputClassName} type="file" accept="image/*" {...authorForm.register("imagen")} />
+                  </AdminFileField>
+                  <Button type="submit" variant="black" disabled={authorForm.formState.isSubmitting} className={`md:col-span-2 ${formActionButtonClassName}`}>
+                    {authorForm.formState.isSubmitting ? <Spinner className="size-4" /> : null}
+                    Crear autor
+                  </Button>
+                </form>
+              </FormSection>
 
-          <section className="space-y-3 rounded-xl border border-border/70 p-4">
-            <h2 className="text-lg font-semibold">Crear género</h2>
-            <form className="grid gap-3 md:grid-cols-2" onSubmit={submitGenre}>
-              <div>
-                <Input placeholder="Nombre" aria-invalid={genreForm.formState.errors.nombre ? "true" : "false"} {...genreForm.register("nombre")} />
-                {fieldError(genreForm.formState.errors.nombre)}
-              </div>
-              <div>
-                <Input placeholder="Identificador web (slug, opcional)" {...genreForm.register("slug")} />
-              </div>
-              <div className="md:col-span-2">
-                <textarea
-                  className="min-h-20 w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm"
-                  placeholder="Descripcion (opcional)"
-                  {...genreForm.register("descripcion")}
-                />
-              </div>
-              <Button type="submit" variant="submit" disabled={genreForm.formState.isSubmitting} className="md:col-span-2">
-                {genreForm.formState.isSubmitting ? <Spinner className="size-4" /> : null}
-                Crear género
-              </Button>
-            </form>
-          </section>
+              <FormSection eyebrow="Catálogo" title="Crear género">
+                <form className="grid gap-4 md:grid-cols-2" onSubmit={submitGenre}>
+                  <AdminFormField error={genreForm.formState.errors.nombre}>
+                    <Input className={formInputClassName} placeholder="Nombre" aria-invalid={genreForm.formState.errors.nombre ? "true" : "false"} {...genreForm.register("nombre")} />
+                  </AdminFormField>
+                  <AdminFormField>
+                    <Input className={formInputClassName} placeholder="Identificador web (slug, opcional)" {...genreForm.register("slug")} />
+                  </AdminFormField>
+                  <AdminFormField className="md:col-span-2">
+                    <Textarea className={formTextareaClassName} placeholder="Descripción (opcional)" {...genreForm.register("descripcion")} />
+                  </AdminFormField>
+                  <Button type="submit" variant="black" disabled={genreForm.formState.isSubmitting} className={`md:col-span-2 ${formActionButtonClassName}`}>
+                    {genreForm.formState.isSubmitting ? <Spinner className="size-4" /> : null}
+                    Crear género
+                  </Button>
+                </form>
+              </FormSection>
 
-          <section className="space-y-3 rounded-xl border border-border/70 p-4">
-            <h2 className="text-lg font-semibold">Crear Editorial</h2>
-            <form className="grid gap-3 md:grid-cols-2" onSubmit={submitPublisher}>
-              <div>
-                <Input placeholder="Nombre" aria-invalid={publisherForm.formState.errors.nombre ? "true" : "false"} {...publisherForm.register("nombre")} />
-                {fieldError(publisherForm.formState.errors.nombre)}
-              </div>
-              <div>
-                <Input placeholder="Identificador web (slug, opcional)" {...publisherForm.register("slug")} />
-              </div>
-              <div>
-                <Input placeholder="Sitio web (opcional)" aria-invalid={publisherForm.formState.errors.sitio_web ? "true" : "false"} {...publisherForm.register("sitio_web")} />
-                {fieldError(publisherForm.formState.errors.sitio_web)}
-              </div>
-              <div className="md:col-span-2">
-                <textarea
-                  className="min-h-20 w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm"
-                  placeholder="Descripcion (opcional)"
-                  {...publisherForm.register("descripcion")}
-                />
-              </div>
-              <label className="md:col-span-2">
-                <span className="mb-1 block text-sm text-muted-foreground">Imagen editorial (opcional)</span>
-                <input type="file" accept="image/*" {...publisherForm.register("imagen")} />
-              </label>
-              <Button type="submit" variant="submit" disabled={publisherForm.formState.isSubmitting} className="md:col-span-2">
-                {publisherForm.formState.isSubmitting ? <Spinner className="size-4" /> : null}
-                Crear editorial
-              </Button>
-            </form>
-          </section>
+              <FormSection eyebrow="Catálogo" title="Crear editorial">
+                <form className="grid gap-4 md:grid-cols-2" onSubmit={submitPublisher}>
+                  <AdminFormField error={publisherForm.formState.errors.nombre}>
+                    <Input className={formInputClassName} placeholder="Nombre" aria-invalid={publisherForm.formState.errors.nombre ? "true" : "false"} {...publisherForm.register("nombre")} />
+                  </AdminFormField>
+                  <AdminFormField>
+                    <Input className={formInputClassName} placeholder="Identificador web (slug, opcional)" {...publisherForm.register("slug")} />
+                  </AdminFormField>
+                  <AdminFormField error={publisherForm.formState.errors.sitio_web}>
+                    <Input className={formInputClassName} placeholder="Sitio web (opcional)" aria-invalid={publisherForm.formState.errors.sitio_web ? "true" : "false"} {...publisherForm.register("sitio_web")} />
+                  </AdminFormField>
+                  <AdminFormField className="md:col-span-2">
+                    <Textarea className={formTextareaClassName} placeholder="Descripción (opcional)" {...publisherForm.register("descripcion")} />
+                  </AdminFormField>
+                  <AdminFileField label="Imagen editorial (opcional)" className="md:col-span-2">
+                    <input className={formFileInputClassName} type="file" accept="image/*" {...publisherForm.register("imagen")} />
+                  </AdminFileField>
+                  <Button type="submit" variant="black" disabled={publisherForm.formState.isSubmitting} className={`md:col-span-2 ${formActionButtonClassName}`}>
+                    {publisherForm.formState.isSubmitting ? <Spinner className="size-4" /> : null}
+                    Crear editorial
+                  </Button>
+                </form>
+              </FormSection>
 
-          <section className="space-y-3 rounded-xl border border-border/70 p-4">
-            <h2 className="text-lg font-semibold">Crear Obra</h2>
-            <form className="grid gap-3 md:grid-cols-2" onSubmit={submitWork}>
-              <div>
-                <Input placeholder="Titulo" aria-invalid={workForm.formState.errors.titulo ? "true" : "false"} {...workForm.register("titulo")} />
-                {fieldError(workForm.formState.errors.titulo)}
-              </div>
-              <div>
-                <Input placeholder="Identificador web (slug, opcional)" {...workForm.register("slug")} />
-              </div>
-              <div>
-                <select className={selectClassName} aria-invalid={workForm.formState.errors.autor_id ? "true" : "false"} {...workForm.register("autor_id")}>
-                  <option value="">Selecciona autor</option>
-                  {authors.map((author) => (
-                    <option key={author.id} value={String(author.id)}>
-                      {author.nombre}
-                    </option>
-                  ))}
-                </select>
-                {fieldError(workForm.formState.errors.autor_id)}
-              </div>
-              <div>
-                <select className={selectClassName} aria-invalid={workForm.formState.errors.genero_id ? "true" : "false"} {...workForm.register("genero_id")}>
-                  <option value="">Selecciona género</option>
-                  {genres.map((genre) => (
-                    <option key={genre.id} value={String(genre.id)}>
-                      {genre.nombre}
-                    </option>
-                  ))}
-                </select>
-                {fieldError(workForm.formState.errors.genero_id)}
-              </div>
-              <div>
-                <Input placeholder="Descripcion corta (opcional)" {...workForm.register("descripcion_corta")} />
-              </div>
-              <div>
-                <Input type="date" placeholder="Fecha de publicación (opcional)" {...workForm.register("fecha_publicacion")} />
-              </div>
-              <div className="md:col-span-2">
-                <textarea
-                  className="min-h-20 w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm"
-                  placeholder="Descripcion (opcional)"
-                  {...workForm.register("descripcion")}
-                />
-              </div>
-              <Button type="submit" variant="submit" disabled={workForm.formState.isSubmitting} className="md:col-span-2">
-                {workForm.formState.isSubmitting ? <Spinner className="size-4" /> : null}
-                Crear obra
-              </Button>
-            </form>
-          </section>
+              <FormSection eyebrow="Catálogo" title="Crear obra">
+                <form className="grid gap-4 md:grid-cols-2" onSubmit={submitWork}>
+                  <AdminFormField error={workForm.formState.errors.titulo}>
+                    <Input className={formInputClassName} placeholder="Título" aria-invalid={workForm.formState.errors.titulo ? "true" : "false"} {...workForm.register("titulo")} />
+                  </AdminFormField>
+                  <AdminFormField>
+                    <Input className={formInputClassName} placeholder="Identificador web (slug, opcional)" {...workForm.register("slug")} />
+                  </AdminFormField>
+                  <AdminFormField error={workForm.formState.errors.autor_id}>
+                    <select className={selectClassName} aria-invalid={workForm.formState.errors.autor_id ? "true" : "false"} {...workForm.register("autor_id")}>
+                      <option value="">Selecciona autor</option>
+                      {authors.map((author) => (
+                        <option key={author.id} value={String(author.id)}>
+                          {author.nombre}
+                        </option>
+                      ))}
+                    </select>
+                  </AdminFormField>
+                  <AdminFormField error={workForm.formState.errors.genero_id}>
+                    <select className={selectClassName} aria-invalid={workForm.formState.errors.genero_id ? "true" : "false"} {...workForm.register("genero_id")}>
+                      <option value="">Selecciona género</option>
+                      {genres.map((genre) => (
+                        <option key={genre.id} value={String(genre.id)}>
+                          {genre.nombre}
+                        </option>
+                      ))}
+                    </select>
+                  </AdminFormField>
+                  <AdminFormField>
+                    <Input className={formInputClassName} placeholder="Descripción corta (opcional)" {...workForm.register("descripcion_corta")} />
+                  </AdminFormField>
+                  <AdminFormField>
+                    <Input className={formInputClassName} type="date" placeholder="Fecha de publicación (opcional)" {...workForm.register("fecha_publicacion")} />
+                  </AdminFormField>
+                  <AdminFormField className="md:col-span-2">
+                    <Textarea className={formTextareaClassName} placeholder="Descripción (opcional)" {...workForm.register("descripcion")} />
+                  </AdminFormField>
+                  <Button type="submit" variant="black" disabled={workForm.formState.isSubmitting} className={`md:col-span-2 ${formActionButtonClassName}`}>
+                    {workForm.formState.isSubmitting ? <Spinner className="size-4" /> : null}
+                    Crear obra
+                  </Button>
+                </form>
+              </FormSection>
 
-          <section className="space-y-3 rounded-xl border border-border/70 p-4">
-            <h2 className="text-lg font-semibold">Crear Libro</h2>
-            <form className="grid gap-3 md:grid-cols-2" onSubmit={submitBook}>
-              <div>
-                <select className={selectClassName} aria-invalid={bookForm.formState.errors.obra_id ? "true" : "false"} {...bookForm.register("obra_id")}>
-                  <option value="">Selecciona obra</option>
-                  {works.map((work) => (
-                    <option key={work.id} value={String(work.id)}>
-                      {work.titulo}
-                    </option>
-                  ))}
-                </select>
-                {fieldError(bookForm.formState.errors.obra_id)}
-              </div>
-              <div>
-                <select className={selectClassName} aria-invalid={bookForm.formState.errors.editorial_id ? "true" : "false"} {...bookForm.register("editorial_id")}>
-                  <option value="">Selecciona editorial</option>
-                  {publishers.map((publisher) => (
-                    <option key={publisher.id} value={String(publisher.id)}>
-                      {publisher.nombre}
-                    </option>
-                  ))}
-                </select>
-                {fieldError(bookForm.formState.errors.editorial_id)}
-              </div>
-              <div>
-                <Input placeholder="Identificador web (slug)*" aria-invalid={bookForm.formState.errors.slug ? "true" : "false"} {...bookForm.register("slug")} />
-                {fieldError(bookForm.formState.errors.slug)}
-              </div>
-              <div>
-                <Input placeholder="SKU*" aria-invalid={bookForm.formState.errors.sku ? "true" : "false"} {...bookForm.register("sku")} />
-                {fieldError(bookForm.formState.errors.sku)}
-              </div>
-              <div>
-                <Input
-                  placeholder="Precio referencia (CLP)*"
-                  aria-invalid={bookForm.formState.errors.precio_referencia ? "true" : "false"}
-                  {...bookForm.register("precio_referencia")}
-                />
-                {fieldError(bookForm.formState.errors.precio_referencia)}
-              </div>
-              <div>
-                <Input placeholder="Stock*" aria-invalid={bookForm.formState.errors.stock ? "true" : "false"} {...bookForm.register("stock")} />
-                {fieldError(bookForm.formState.errors.stock)}
-              </div>
-              <div>
-                <select className={selectClassName} {...bookForm.register("tipo_tapa")}>
-                  <option value="BLANDA">Tapa blanda</option>
-                  <option value="DURA">Tapa dura</option>
-                </select>
-              </div>
-              <div>
-                <Input
-                  placeholder="Cantidad paginas*"
-                  aria-invalid={bookForm.formState.errors.cantidad_paginas ? "true" : "false"}
-                  {...bookForm.register("cantidad_paginas")}
-                />
-                {fieldError(bookForm.formState.errors.cantidad_paginas)}
-              </div>
-              <div>
-                <Input placeholder="ISBN" {...bookForm.register("isbn")} />
-              </div>
-              <div>
-                <Input
-                  placeholder="Idioma (opcional, default: es)"
-                  {...bookForm.register("idioma")}
-                />
-              </div>
-              <div>
-                <Input
-                  placeholder="año publicación"
-                  aria-invalid={bookForm.formState.errors.anio_publicacion ? "true" : "false"}
-                  {...bookForm.register("anio_publicacion")}
-                />
-                {fieldError(bookForm.formState.errors.anio_publicacion)}
-              </div>
-              <div>
-                <Input placeholder="Peso kg" {...bookForm.register("peso_kg")} />
-              </div>
-              <div>
-                <Input placeholder="Alto cm" {...bookForm.register("alto_cm")} />
-              </div>
-              <div>
-                <Input placeholder="Ancho cm" {...bookForm.register("ancho_cm")} />
-              </div>
-              <div>
-                <Input placeholder="Largo cm" {...bookForm.register("largo_cm")} />
-              </div>
-              <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" {...bookForm.register("gestionar_stock")} />
-                Gestiónar stock
-              </label>
-              <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" {...bookForm.register("activo")} />
-                Activo
-              </label>
-              <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" {...bookForm.register("destacado")} />
-                Destacado
-              </label>
-              <label className="md:col-span-2">
-                <span className="mb-1 block text-sm text-muted-foreground">Portada (upload)</span>
-                <input type="file" accept="image/*" {...bookForm.register("imagen")} />
-              </label>
-              <div>
-                <Input placeholder="Descripcion corta" {...bookForm.register("descripcion_corta")} />
-              </div>
-              <div className="md:col-span-2">
-                <textarea
-                  className="min-h-20 w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm"
-                  placeholder="Descripcion"
-                  {...bookForm.register("descripcion")}
-                />
-              </div>
-              <Button type="submit" variant="submit" disabled={bookForm.formState.isSubmitting} className="md:col-span-2">
-                {bookForm.formState.isSubmitting ? <Spinner className="size-4" /> : null}
-                Crear libro
-              </Button>
-            </form>
-          </section>
+              <FormSection eyebrow="Catálogo" title="Crear libro">
+                <form className="grid gap-4 md:grid-cols-2" onSubmit={submitBook}>
+                  <AdminFormField error={bookForm.formState.errors.obra_id}>
+                    <select className={selectClassName} aria-invalid={bookForm.formState.errors.obra_id ? "true" : "false"} {...bookForm.register("obra_id")}>
+                      <option value="">Selecciona obra</option>
+                      {works.map((work) => (
+                        <option key={work.id} value={String(work.id)}>
+                          {work.titulo}
+                        </option>
+                      ))}
+                    </select>
+                  </AdminFormField>
+                  <AdminFormField error={bookForm.formState.errors.editorial_id}>
+                    <select className={selectClassName} aria-invalid={bookForm.formState.errors.editorial_id ? "true" : "false"} {...bookForm.register("editorial_id")}>
+                      <option value="">Selecciona editorial</option>
+                      {publishers.map((publisher) => (
+                        <option key={publisher.id} value={String(publisher.id)}>
+                          {publisher.nombre}
+                        </option>
+                      ))}
+                    </select>
+                  </AdminFormField>
+                  <AdminFormField error={bookForm.formState.errors.slug}>
+                    <Input className={formInputClassName} placeholder="Identificador web (slug)*" aria-invalid={bookForm.formState.errors.slug ? "true" : "false"} {...bookForm.register("slug")} />
+                  </AdminFormField>
+                  <AdminFormField error={bookForm.formState.errors.sku}>
+                    <Input className={formInputClassName} placeholder="SKU*" aria-invalid={bookForm.formState.errors.sku ? "true" : "false"} {...bookForm.register("sku")} />
+                  </AdminFormField>
+                  <AdminFormField error={bookForm.formState.errors.precio_referencia}>
+                    <Input className={formInputClassName} placeholder="Precio referencia (CLP)*" aria-invalid={bookForm.formState.errors.precio_referencia ? "true" : "false"} {...bookForm.register("precio_referencia")} />
+                  </AdminFormField>
+                  <AdminFormField error={bookForm.formState.errors.stock}>
+                    <Input className={formInputClassName} placeholder="Stock*" aria-invalid={bookForm.formState.errors.stock ? "true" : "false"} {...bookForm.register("stock")} />
+                  </AdminFormField>
+                  <AdminFormField>
+                    <select className={selectClassName} {...bookForm.register("tipo_tapa")}>
+                      <option value="BLANDA">Tapa blanda</option>
+                      <option value="DURA">Tapa dura</option>
+                    </select>
+                  </AdminFormField>
+                  <AdminFormField error={bookForm.formState.errors.cantidad_paginas}>
+                    <Input className={formInputClassName} placeholder="Cantidad páginas*" aria-invalid={bookForm.formState.errors.cantidad_paginas ? "true" : "false"} {...bookForm.register("cantidad_paginas")} />
+                  </AdminFormField>
+                  <AdminFormField>
+                    <Input className={formInputClassName} placeholder="ISBN" {...bookForm.register("isbn")} />
+                  </AdminFormField>
+                  <AdminFormField>
+                    <Input className={formInputClassName} placeholder="Idioma (opcional, default: es)" {...bookForm.register("idioma")} />
+                  </AdminFormField>
+                  <AdminFormField error={bookForm.formState.errors.anio_publicacion}>
+                    <Input className={formInputClassName} placeholder="Año publicación" aria-invalid={bookForm.formState.errors.anio_publicacion ? "true" : "false"} {...bookForm.register("anio_publicacion")} />
+                  </AdminFormField>
+                  <AdminFormField>
+                    <Input className={formInputClassName} placeholder="Peso kg" {...bookForm.register("peso_kg")} />
+                  </AdminFormField>
+                  <AdminFormField>
+                    <Input className={formInputClassName} placeholder="Alto cm" {...bookForm.register("alto_cm")} />
+                  </AdminFormField>
+                  <AdminFormField>
+                    <Input className={formInputClassName} placeholder="Ancho cm" {...bookForm.register("ancho_cm")} />
+                  </AdminFormField>
+                  <AdminFormField>
+                    <Input className={formInputClassName} placeholder="Largo cm" {...bookForm.register("largo_cm")} />
+                  </AdminFormField>
+                  <AdminCheckboxField
+                    label="Gestionar stock"
+                    checked={bookForm.watch("gestionar_stock")}
+                    onCheckedChange={(checked) => bookForm.setValue("gestionar_stock", checked)}
+                  />
+                  <AdminCheckboxField
+                    label="Activo"
+                    checked={bookForm.watch("activo")}
+                    onCheckedChange={(checked) => bookForm.setValue("activo", checked)}
+                  />
+                  <AdminCheckboxField
+                    label="Destacado"
+                    checked={bookForm.watch("destacado")}
+                    onCheckedChange={(checked) => bookForm.setValue("destacado", checked)}
+                  />
+                  <AdminFileField label="Portada (upload)" className="md:col-span-2">
+                    <input className={formFileInputClassName} type="file" accept="image/*" {...bookForm.register("imagen")} />
+                  </AdminFileField>
+                  <AdminFormField>
+                    <Input className={formInputClassName} placeholder="Descripción corta" {...bookForm.register("descripcion_corta")} />
+                  </AdminFormField>
+                  <AdminFormField className="md:col-span-2">
+                    <Textarea className={formTextareaClassName} placeholder="Descripción" {...bookForm.register("descripcion")} />
+                  </AdminFormField>
+                  <Button type="submit" variant="black" disabled={bookForm.formState.isSubmitting} className={`md:col-span-2 ${formActionButtonClassName}`}>
+                    {bookForm.formState.isSubmitting ? <Spinner className="size-4" /> : null}
+                    Crear libro
+                  </Button>
+                </form>
+              </FormSection>
             </div>
           ) : (
-            <section className="space-y-3 rounded-xl border border-border/70 p-4">
+            <section className={`${formSectionClassName} space-y-6`}>
               <div className="flex items-center justify-between gap-3">
                 <h2 className="text-lg font-semibold">Lista de libros</h2>
-                <Button type="button" size="sm" variant="outline" onClick={() => void loadBooks(effectiveListFilters, true)}>
+                <Button type="button" size="sm" variant="outline" className={formToggleButtonClassName} onClick={() => void loadBooks(effectiveListFilters, true)}>
                   Recargar
                 </Button>
               </div>
 
               <div className="grid gap-6 xl:grid-cols-[18rem_minmax(0,1fr)] xl:items-start">
                 <aside className="space-y-4 xl:sticky xl:top-8">
-                  <div className="flex flex-wrap gap-2 rounded-xl border border-border/70 p-3">
+                  <div className={`${formSectionClassName} flex flex-wrap gap-2`}>
                     <Button
                       type="button"
-                      variant={statusFilter === "all" ? "default" : "outline"}
+                      variant={statusFilter === "all" ? "black" : "outline"}
                       size="sm"
+                      className={formToggleButtonClassName}
                       onClick={() => setStatusFilter("all")}
                     >
                       Todos
                     </Button>
                     <Button
                       type="button"
-                      variant={statusFilter === "active" ? "default" : "outline"}
+                      variant={statusFilter === "active" ? "black" : "outline"}
                       size="sm"
+                      className={formToggleButtonClassName}
                       onClick={() => setStatusFilter("active")}
                     >
                       Activos
                     </Button>
                     <Button
                       type="button"
-                      variant={statusFilter === "inactive" ? "default" : "outline"}
+                      variant={statusFilter === "inactive" ? "black" : "outline"}
                       size="sm"
+                      className={formToggleButtonClassName}
                       onClick={() => setStatusFilter("inactive")}
                     >
                       Inactivos
@@ -930,7 +953,7 @@ export function AdminCatalogPage() {
                 ) : (
                   <div className="space-y-2">
                   {books.map((book) => (
-                    <article key={book.id} className="rounded-lg border border-border/70 p-3">
+                    <article key={book.id} className={`${formSectionClassName} space-y-4`}>
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
                           {book.imagen ? (
@@ -953,13 +976,14 @@ export function AdminCatalogPage() {
                           </div>
                         </div>
                         <div className="flex gap-2">
-                          <Button type="button" size="sm" variant="outline" onClick={() => startEditingBook(book)}>
+                          <Button type="button" size="sm" variant="outline" className={formToggleButtonClassName} onClick={() => startEditingBook(book)}>
                             Editar
                           </Button>
                           <Button
                             type="button"
                             size="sm"
                             variant="destructive"
+                            className={formToggleButtonClassName}
                             disabled={deletingBookId === book.id}
                             onClick={() => void handleDeleteBook(book)}
                           >
@@ -970,59 +994,58 @@ export function AdminCatalogPage() {
                       </div>
 
                       {editingBookId === book.id ? (
-                        <form className="mt-3 grid gap-3 md:grid-cols-2" onSubmit={submitBookEdit}>
-                          <div>
+                        <form className="mt-2 grid gap-4 md:grid-cols-2" onSubmit={submitBookEdit}>
+                          <AdminFormField error={bookEditForm.formState.errors.slug}>
                             <Input
+                              className={formInputClassName}
                               placeholder="Identificador web (slug)*"
                               aria-invalid={bookEditForm.formState.errors.slug ? "true" : "false"}
                               {...bookEditForm.register("slug")}
                             />
-                            {fieldError(bookEditForm.formState.errors.slug)}
-                          </div>
-                          <div>
+                          </AdminFormField>
+                          <AdminFormField error={bookEditForm.formState.errors.sku}>
                             <Input
+                              className={formInputClassName}
                               placeholder="SKU*"
                               aria-invalid={bookEditForm.formState.errors.sku ? "true" : "false"}
                               {...bookEditForm.register("sku")}
                             />
-                            {fieldError(bookEditForm.formState.errors.sku)}
-                          </div>
-                          <div>
+                          </AdminFormField>
+                          <AdminFormField error={bookEditForm.formState.errors.precio_referencia}>
                             <Input
+                              className={formInputClassName}
                               placeholder="Precio referencia (CLP)*"
                               aria-invalid={bookEditForm.formState.errors.precio_referencia ? "true" : "false"}
                               {...bookEditForm.register("precio_referencia")}
                             />
-                            {fieldError(bookEditForm.formState.errors.precio_referencia)}
-                          </div>
-                          <div>
+                          </AdminFormField>
+                          <AdminFormField error={bookEditForm.formState.errors.stock}>
                             <Input
+                              className={formInputClassName}
                               placeholder="Stock*"
                               aria-invalid={bookEditForm.formState.errors.stock ? "true" : "false"}
                               {...bookEditForm.register("stock")}
                             />
-                            {fieldError(bookEditForm.formState.errors.stock)}
-                          </div>
-                          <label className="flex items-center gap-2 text-sm">
-                            <input type="checkbox" {...bookEditForm.register("activo")} />
-                            Activo
-                          </label>
-                          <label className="flex items-center gap-2 text-sm">
-                            <input type="checkbox" {...bookEditForm.register("destacado")} />
-                            Destacado
-                          </label>
-                          <label className="md:col-span-2">
-                            <span className="mb-1 block text-sm text-muted-foreground">
-                              Cambiar portada (opcional)
-                            </span>
-                            <input type="file" accept="image/*" {...bookEditForm.register("imagen")} />
-                          </label>
+                          </AdminFormField>
+                          <AdminCheckboxField
+                            label="Activo"
+                            checked={bookEditForm.watch("activo")}
+                            onCheckedChange={(checked) => bookEditForm.setValue("activo", checked)}
+                          />
+                          <AdminCheckboxField
+                            label="Destacado"
+                            checked={bookEditForm.watch("destacado")}
+                            onCheckedChange={(checked) => bookEditForm.setValue("destacado", checked)}
+                          />
+                          <AdminFileField label="Cambiar portada (opcional)" className="md:col-span-2">
+                            <input className={formFileInputClassName} type="file" accept="image/*" {...bookEditForm.register("imagen")} />
+                          </AdminFileField>
                           <div className="md:col-span-2 flex gap-2">
-                            <Button type="submit" size="sm" variant="submit" disabled={bookEditForm.formState.isSubmitting}>
+                            <Button type="submit" size="sm" variant="black" className={formToggleButtonClassName} disabled={bookEditForm.formState.isSubmitting}>
                               {bookEditForm.formState.isSubmitting ? <Spinner className="size-4" /> : null}
                               Guardar cambios
                             </Button>
-                            <Button type="button" size="sm" variant="outline" onClick={() => setEditingBookId(null)}>
+                            <Button type="button" size="sm" variant="outline" className={formToggleButtonClassName} onClick={() => setEditingBookId(null)}>
                               Cancelar
                             </Button>
                           </div>
@@ -1037,7 +1060,7 @@ export function AdminCatalogPage() {
           )}
         </div>
       )}
-    </BannerDiv>
+    </section>
   )
 }
 

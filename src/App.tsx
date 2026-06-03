@@ -69,7 +69,7 @@ function App() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <MainHeader />
-      <main className="mx-auto w-full max-w-[90rem] px-4 pt-5 pb-10 sm:px-6 sm:pt-6 lg:px-8">
+      <main className="mx-auto w-full max-w-[90rem] px-4 pt-[5.25rem] pb-10 sm:px-6 sm:pt-[5.5rem] lg:px-8">
         <Suspense fallback={<PageSkeleton />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
