@@ -16,7 +16,7 @@ import { toFriendlyErrorMessage } from "@/lib/human-errors"
 const forgotPasswordSchema = z.object({
   email: z.email("Ingresa un email válido."),
 })
-
+// hola hola 
 type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>
 
 export function ForgotPasswordPage() {
